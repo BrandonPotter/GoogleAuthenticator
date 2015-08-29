@@ -22,8 +22,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configurations", "Configura
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Google.Authenticator.Tests", "Google.Authenticator.Tests\Google.Authenticator.Tests.csproj", "{5671E1C5-7CD0-4F42-8FFD-33879A9663DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTPCycler", "OTPCycler\OTPCycler.csproj", "{5069C6AB-90A3-4640-8070-A4B84FEC3F40}"
-EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 6
