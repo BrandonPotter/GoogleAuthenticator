@@ -222,6 +222,11 @@ namespace Google.Authenticator
         {
             return GeneratePINAtInterval(accountSecretKey, GetCurrentCounter());
         }
+        
+         public string GetCurrentPIN(string accountSecretKey,DateTime now)
+        {
+            return GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(now,_epoch,30));
+        }
 
         public string[] GetCurrentPINs(string accountSecretKey)
         {
