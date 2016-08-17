@@ -115,7 +115,7 @@ namespace Google.Authenticator
             //    accountSecretKey = accountSecretKey.Substring(0, 12);
             //}
 
-            return Base32Encode(System.Text.ASCIIEncoding.Default.GetBytes(accountSecretKey));
+            return Base32Encode(Encoding.UTF8.GetBytes(accountSecretKey));
         }
 
         private string Base32Encode(byte[] data)
@@ -166,7 +166,7 @@ namespace Google.Authenticator
 
         internal string GenerateHashedCode(string secret, long iterationNumber, int digits = 6)
         {
-            byte[] key = Encoding.ASCII.GetBytes(secret);
+            byte[] key = Encoding.UTF8.GetBytes(secret);
             return GenerateHashedCode(key, iterationNumber, digits);
         }
 
@@ -179,7 +179,7 @@ namespace Google.Authenticator
                 Array.Reverse(counter);
             }
 
-            HMACSHA1 hmac = new HMACSHA1(key, true);
+            HMACSHA1 hmac = new HMACSHA1(key);
 
             byte[] hash = hmac.ComputeHash(counter);
 

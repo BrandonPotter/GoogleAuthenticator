@@ -1,14 +1,13 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace Google.Authenticator.Tests
 {
-    [TestClass]
     public class KeyFinderTest
     {
         public static DateTime _epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        [TestMethod]
+        [Fact]
         public void FindIterationNumber()
         {
             string secretKey = "PJWUMZKAUUFQKJBAMD6VGJ6RULFVW4ZH";
@@ -24,11 +23,11 @@ namespace Google.Authenticator.Tests
                 var result = tfa.GeneratePINAtInterval(secretKey, i, 6);
                 if (result == targetCode)
                 {
-                    Assert.IsTrue(true);
+                    Assert.True(true);
                 }
             }
 
-            Assert.IsTrue(false);
+            Assert.True(false);
         }
     }
 }
