@@ -10,10 +10,16 @@ namespace Google.Authenticator
     {
         public static DateTime _epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         public TimeSpan DefaultClockDriftTolerance { get; set; }
+        public bool UseManagedSha1Algorithm { get; set; }
+        public bool TryUnmanagedAlgorithmOnFailure { get; set; }
 
-        public TwoFactorAuthenticator()
+        public TwoFactorAuthenticator() : this(true, true) {}
+
+        public TwoFactorAuthenticator(bool useManagedSha1, bool useUnmanagedOnFail)
         {
             DefaultClockDriftTolerance = TimeSpan.FromMinutes(5);
+            UseManagedSha1Algorithm = useManagedSha1;
+            TryUnmanagedAlgorithmOnFailure = useUnmanagedOnFail;
         }
 
         /// <summary>
@@ -179,8 +185,8 @@ namespace Google.Authenticator
                 Array.Reverse(counter);
             }
 
-            HMACSHA1 hmac = new HMACSHA1(key, true);
-
+            HMACSHA1 hmac = getHMACSha1Algorithm(key);
+                        
             byte[] hash = hmac.ComputeHash(counter);
 
             int offset = hash[hash.Length - 1] & 0xf;
@@ -206,7 +212,43 @@ namespace Google.Authenticator
             return (long)(now - epoch).TotalSeconds / timeStep;
         }
 
+        /// <summary>
+        /// Creates a HMACSHA1 algorithm to use to hash the counter bytes. By default, this will attempt to use
+        /// the managed SHA1 class (SHA1Manager) and on exception (FIPS-compliant machine policy, etc) will attempt
+        /// to use the unmanaged SHA1 class (SHA1CryptoServiceProvider).
+        /// </summary>
+        /// <param name="key">User's secret key, in bytes</param>
+        /// <returns>HMACSHA1 cryptographic algorithm</returns>        
+        private HMACSHA1 getHMACSha1Algorithm(byte[] key)
+        {
+            HMACSHA1 hmac;
 
+            try
+            {
+                hmac = new HMACSHA1(key, UseManagedSha1Algorithm);
+            }
+            catch (InvalidOperationException ioe)
+            {
+                if (UseManagedSha1Algorithm && TryUnmanagedAlgorithmOnFailure)
+                {
+                    try
+                    {
+                        hmac = new HMACSHA1(key, false);
+                    }
+                    catch (InvalidOperationException ioe2)
+                    {
+                        throw ioe2;
+                    }
+                }
+                else
+                {
+                    throw ioe;
+                }
+            }
+
+            return hmac;
+        }
+        
         public bool ValidateTwoFactorPIN(string accountSecretKey, string twoFactorCodeFromClient)
         {
             return ValidateTwoFactorPIN(accountSecretKey, twoFactorCodeFromClient, DefaultClockDriftTolerance);
