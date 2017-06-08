@@ -21,6 +21,37 @@ namespace Google.Authenticator
             UseManagedSha1Algorithm = useManagedSha1;
             TryUnmanagedAlgorithmOnFailure = useUnmanagedOnFail;
         }
+		
+		/// <summary>
+        /// Generate a setup code for a Google Authenticator user. 
+        /// This method does not return a QR Code Image, only the otpAuth URL to be embedded in the image that needs to be generated.
+        /// Image generation is left to the caller to handle with their library of choice.
+        /// </summary>
+        /// <param name="issuer">Issuer ID (the name of the system, i.e. 'MyApp')</param>
+        /// <param name="accountTitleNoSpaces">Account Title (no spaces)</param>
+        /// <param name="accountSecretKey">Account Secret Key</param>
+        /// <returns>SetupCode object</returns>
+        public SetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces, string accountSecretKey)
+        {
+            if (string.IsNullOrWhiteSpace(accountTitleNoSpaces)) { throw new NullReferenceException("Account Title is null"); }
+
+            accountTitleNoSpaces = accountTitleNoSpaces.Replace(" ", "");
+            string encodedSecretKey = EncodeAccountSecretKey(accountSecretKey);
+
+		    SetupCode sC = new SetupCode
+		    {
+		        Account = accountTitleNoSpaces,
+		        AccountSecretKey = accountSecretKey,
+		        ManualEntryKey = encodedSecretKey
+		    };
+
+		    if (string.IsNullOrEmpty(issuer))
+                sC.QrCodeSetupImageUrl = $"otpauth://totp/{accountTitleNoSpaces}?secret={encodedSecretKey}";
+            else
+                sC.QrCodeSetupImageUrl = $"otpauth://totp/{accountTitleNoSpaces}?secret={encodedSecretKey}&issuer={issuer}";
+
+            return sC;
+        }
 
         /// <summary>
         /// Generate a setup code for a Google Authenticator user to scan.
@@ -111,16 +142,6 @@ namespace Google.Authenticator
 
         private string EncodeAccountSecretKey(string accountSecretKey)
         {
-            //if (accountSecretKey.Length < 10)
-            //{
-            //    accountSecretKey = accountSecretKey.PadRight(10, '0');
-            //}
-
-            //if (accountSecretKey.Length > 12)
-            //{
-            //    accountSecretKey = accountSecretKey.Substring(0, 12);
-            //}
-
             return Base32Encode(Encoding.UTF8.GetBytes(accountSecretKey));
         }
 
@@ -264,10 +285,10 @@ namespace Google.Authenticator
         {
             return GeneratePINAtInterval(accountSecretKey, GetCurrentCounter());
         }
-        
-         public string GetCurrentPIN(string accountSecretKey,DateTime now)
+
+        public string GetCurrentPIN(string accountSecretKey, DateTime now)
         {
-            return GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(now,_epoch,30));
+            return GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(now, _epoch, 30));
         }
 
         public string[] GetCurrentPINs(string accountSecretKey)
