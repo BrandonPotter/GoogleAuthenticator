@@ -46,9 +46,9 @@ namespace Google.Authenticator
 		    };
 
 		    if (string.IsNullOrEmpty(issuer))
-                sC.QrCodeSetupImageUrl = $"otpauth://totp/{accountTitleNoSpaces}?secret={encodedSecretKey}";
+                sC.QrCodeSetupImageUrl = String.Format("otpauth://totp/{0}?secret={1}", accountTitleNoSpaces, encodedSecretKey);
             else
-                sC.QrCodeSetupImageUrl = $"otpauth://totp/{accountTitleNoSpaces}?secret={encodedSecretKey}&issuer={issuer}";
+                sC.QrCodeSetupImageUrl = String.Format("otpauth://totp/{0}?secret={1}&issuer={2}", accountTitleNoSpaces, encodedSecretKey, issuer);
 
             return sC;
         }
