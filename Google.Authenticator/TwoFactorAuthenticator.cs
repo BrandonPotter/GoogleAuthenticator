@@ -22,7 +22,7 @@ namespace Google.Authenticator
             TryUnmanagedAlgorithmOnFailure = useUnmanagedOnFail;
         }
 		
-		/// <summary>
+        /// <summary>
         /// Generate a setup code for a Google Authenticator user. 
         /// This method does not return a QR Code Image, only the otpAuth URL to be embedded in the image that needs to be generated.
         /// Image generation is left to the caller to handle with their library of choice.
@@ -45,10 +45,14 @@ namespace Google.Authenticator
 		        ManualEntryKey = encodedSecretKey
 		    };
 
-		    if (string.IsNullOrEmpty(issuer))
+            if (string.IsNullOrEmpty(issuer))
+            {
                 sC.QrCodeSetupImageUrl = String.Format("otpauth://totp/{0}?secret={1}", accountTitleNoSpaces, encodedSecretKey);
+            }
             else
+            {
                 sC.QrCodeSetupImageUrl = String.Format("otpauth://totp/{0}?secret={1}&issuer={2}", accountTitleNoSpaces, encodedSecretKey, issuer);
+            }
 
             return sC;
         }
@@ -108,7 +112,9 @@ namespace Google.Authenticator
             if (string.IsNullOrEmpty(issuer))
             {
                 provisionUrl = UrlEncode(String.Format("otpauth://totp/{0}?secret={1}", accountTitleNoSpaces, encodedSecretKey));
-            } else {
+            }
+            else
+            {
                 provisionUrl = UrlEncode(String.Format("otpauth://totp/{0}?secret={1}&issuer={2}", accountTitleNoSpaces, encodedSecretKey, UrlEncode(issuer)));
             }
 
