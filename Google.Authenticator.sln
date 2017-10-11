@@ -1,79 +1,25 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Google.Authenticator", "Google.Authenticator\Google.Authenticator.csproj", "{3D92DE47-0AB8-466F-9083-AF65D865E4BE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Google.Authenticator.WinTest", "Google.Authenticator.WinTest\Google.Authenticator.WinTest.csproj", "{C2B44C17-B77B-4DA8-B924-96B28B50D198}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Google.Authenticator.WebSample", "Google.Authenticator.WebSample\Google.Authenticator.WebSample.csproj", "{21A63F79-D85F-4FE7-AC74-5171FAC0DCBF}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PublishScripts", "PublishScripts", "{AEA3C33C-6FF6-447C-AB2A-97E39AD97441}"
-	ProjectSection(SolutionItems) = preProject
-		PublishScripts\AzureWebsitePublishModule.psm1 = PublishScripts\AzureWebsitePublishModule.psm1
-		PublishScripts\Publish-WebApplicationWebsite.ps1 = PublishScripts\Publish-WebApplicationWebsite.ps1
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configurations", "Configurations", "{A4B0F582-7831-4BFD-825C-64153E7E2138}"
-	ProjectSection(SolutionItems) = preProject
-		PublishScripts\Configurations\GoogleAuthenticatorWebSample-WAWS-dev.json = PublishScripts\Configurations\GoogleAuthenticatorWebSample-WAWS-dev.json
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Google.Authenticator.Tests", "Google.Authenticator.Tests\Google.Authenticator.Tests.csproj", "{5671E1C5-7CD0-4F42-8FFD-33879A9663DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoogleAuthenticator", "Google.Authenticator\GoogleAuthenticator.csproj", "{6DEA249A-0CB4-42BC-93D6-6DDDB6C1688A}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 6
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://x9tech.visualstudio.com/defaultcollection
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = Google.Authenticator\\Google.Authenticator.csproj
-		SccProjectName1 = Google.Authenticator
-		SccLocalPath1 = Google.Authenticator
-		SccProjectUniqueName2 = Google.Authenticator.WinTest\\Google.Authenticator.WinTest.csproj
-		SccProjectName2 = Google.Authenticator.WinTest
-		SccLocalPath2 = Google.Authenticator.WinTest
-		SccProjectUniqueName3 = Google.Authenticator.WebSample\\Google.Authenticator.WebSample.csproj
-		SccProjectName3 = Google.Authenticator.WebSample
-		SccLocalPath3 = Google.Authenticator.WebSample
-		SccProjectUniqueName4 = Google.Authenticator.Tests\\Google.Authenticator.Tests.csproj
-		SccProjectName4 = Google.Authenticator.Tests
-		SccLocalPath4 = Google.Authenticator.Tests
-		SccProjectUniqueName5 = OTPCycler\\OTPCycler.csproj
-		SccProjectName5 = OTPCycler
-		SccLocalPath5 = OTPCycler
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3D92DE47-0AB8-466F-9083-AF65D865E4BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3D92DE47-0AB8-466F-9083-AF65D865E4BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3D92DE47-0AB8-466F-9083-AF65D865E4BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3D92DE47-0AB8-466F-9083-AF65D865E4BE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C2B44C17-B77B-4DA8-B924-96B28B50D198}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C2B44C17-B77B-4DA8-B924-96B28B50D198}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C2B44C17-B77B-4DA8-B924-96B28B50D198}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C2B44C17-B77B-4DA8-B924-96B28B50D198}.Release|Any CPU.Build.0 = Release|Any CPU
-		{21A63F79-D85F-4FE7-AC74-5171FAC0DCBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{21A63F79-D85F-4FE7-AC74-5171FAC0DCBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{21A63F79-D85F-4FE7-AC74-5171FAC0DCBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{21A63F79-D85F-4FE7-AC74-5171FAC0DCBF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5671E1C5-7CD0-4F42-8FFD-33879A9663DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5671E1C5-7CD0-4F42-8FFD-33879A9663DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5671E1C5-7CD0-4F42-8FFD-33879A9663DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5671E1C5-7CD0-4F42-8FFD-33879A9663DA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5069C6AB-90A3-4640-8070-A4B84FEC3F40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5069C6AB-90A3-4640-8070-A4B84FEC3F40}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5069C6AB-90A3-4640-8070-A4B84FEC3F40}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5069C6AB-90A3-4640-8070-A4B84FEC3F40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DEA249A-0CB4-42BC-93D6-6DDDB6C1688A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DEA249A-0CB4-42BC-93D6-6DDDB6C1688A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DEA249A-0CB4-42BC-93D6-6DDDB6C1688A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DEA249A-0CB4-42BC-93D6-6DDDB6C1688A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{A4B0F582-7831-4BFD-825C-64153E7E2138} = {AEA3C33C-6FF6-447C-AB2A-97E39AD97441}
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {76E1BA7C-6616-42C7-8DAB-FE1CCDD71FD6}
 	EndGlobalSection
 EndGlobal
