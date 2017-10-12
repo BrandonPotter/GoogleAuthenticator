@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace GoogleAuthenticator
+namespace Lykke.GoogleAuthenticator
 {
     public class TwoFactorAuthenticator
     {

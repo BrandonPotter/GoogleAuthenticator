@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoogleAuthenticator", "Google.Authenticator\GoogleAuthenticator.csproj", "{6DEA249A-0CB4-42BC-93D6-6DDDB6C1688A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.GoogleAuthenticator", "Google.Authenticator\Lykke.GoogleAuthenticator.csproj", "{6DEA249A-0CB4-42BC-93D6-6DDDB6C1688A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

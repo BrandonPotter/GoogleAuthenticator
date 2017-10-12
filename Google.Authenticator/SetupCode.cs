@@ -1,4 +1,4 @@
-﻿namespace GoogleAuthenticator
+﻿namespace Lykke.GoogleAuthenticator
 {
     public class SetupCode
     {
