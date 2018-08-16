@@ -81,7 +81,7 @@
             this.pbQR.BackColor = System.Drawing.Color.White;
             this.pbQR.Location = new System.Drawing.Point(34, 67);
             this.pbQR.Name = "pbQR";
-            this.pbQR.Size = new System.Drawing.Size(213, 191);
+            this.pbQR.Size = new System.Drawing.Size(231, 223);
             this.pbQR.TabIndex = 4;
             this.pbQR.TabStop = false;
             // 

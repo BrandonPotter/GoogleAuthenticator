@@ -1,5 +1,8 @@
-﻿using System;
+﻿using QRCoder;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -62,16 +65,24 @@ namespace Google.Authenticator
             
             if (string.IsNullOrEmpty(issuer))
             {
-                provisionUrl = UrlEncode(String.Format("otpauth://totp/{0}?secret={1}", accountTitleNoSpaces, encodedSecretKey));
+                provisionUrl = String.Format("otpauth://totp/{0}?secret={1}", accountTitleNoSpaces, encodedSecretKey);
             } else {
-                provisionUrl = UrlEncode(String.Format("otpauth://totp/{0}?secret={1}&issuer={2}", accountTitleNoSpaces, encodedSecretKey, UrlEncode(issuer)));
+                provisionUrl = String.Format("otpauth://totp/{0}?secret={1}&issuer={2}", accountTitleNoSpaces, encodedSecretKey, UrlEncode(issuer));
             }
 
-            string protocol = useHttps ? "https" : "http";
-            string url = String.Format("{0}://chart.googleapis.com/chart?cht=qr&chs={1}x{2}&chl={3}", protocol, qrCodeWidth, qrCodeHeight, provisionUrl);
+            using (QRCodeGenerator qr = new QRCodeGenerator())
+            using (QRCodeData data = qr.CreateQrCode(provisionUrl, QRCodeGenerator.ECCLevel.Q))
+            using (QRCode code = new QRCode(data))
+            using (MemoryStream ms = new MemoryStream())
+            using (Image img = code.GetGraphic(4))
+            {
+                img.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                //string protocol = useHttps ? "https" : "http";
+                //string url = String.Format("{0}://chart.googleapis.com/chart?cht=qr&chs={1}x{2}&chl={3}", protocol, qrCodeWidth, qrCodeHeight, provisionUrl);
 
-            sC.QrCodeSetupImageUrl = url;
+                sC.QrCodeSetupImageUrl = Convert.ToBase64String(ms.ToArray());
 
+            }
             return sC;
         }
 
