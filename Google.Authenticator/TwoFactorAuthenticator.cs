@@ -8,10 +8,10 @@ namespace Google.Authenticator
 {
     public class TwoFactorAuthenticator
     {
-        public static DateTime _epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        public TimeSpan DefaultClockDriftTolerance { get; set; }
-        public bool UseManagedSha1Algorithm { get; set; }
-        public bool TryUnmanagedAlgorithmOnFailure { get; set; }
+        private static DateTime _epoch => new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private TimeSpan DefaultClockDriftTolerance { get; set; }
+        private bool UseManagedSha1Algorithm { get; set; }
+        private bool TryUnmanagedAlgorithmOnFailure { get; set; }
 
         public TwoFactorAuthenticator() : this(true, true) {}
 
@@ -43,23 +43,9 @@ namespace Google.Authenticator
         /// <param name="accountSecretKey">Account Secret Key</param>
         /// <param name="qrCodeWidth">QR Code Width</param>
         /// <param name="qrCodeHeight">QR Code Height</param>
-        /// <returns>SetupCode object</returns>
-        public SetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces, string accountSecretKey, int qrCodeWidth, int qrCodeHeight)
-        {
-            return GenerateSetupCode(issuer, accountTitleNoSpaces, accountSecretKey, qrCodeWidth, qrCodeHeight, false);
-        }
-
-        /// <summary>
-        /// Generate a setup code for a Google Authenticator user to scan (with issuer ID).
-        /// </summary>
-        /// <param name="issuer">Issuer ID (the name of the system, i.e. 'MyApp')</param>
-        /// <param name="accountTitleNoSpaces">Account Title (no spaces)</param>
-        /// <param name="accountSecretKey">Account Secret Key</param>
-        /// <param name="qrCodeWidth">QR Code Width</param>
-        /// <param name="qrCodeHeight">QR Code Height</param>
         /// <param name="useHttps">Use HTTPS instead of HTTP</param>
         /// <returns>SetupCode object</returns>
-        public SetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces, string accountSecretKey, int qrCodeWidth, int qrCodeHeight, bool useHttps)
+        public SetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces, string accountSecretKey, int qrCodeWidth, int qrCodeHeight, bool useHttps = true)
         {
             if (accountTitleNoSpaces == null) { throw new NullReferenceException("Account Title is null"); }
 

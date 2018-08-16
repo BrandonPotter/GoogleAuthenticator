@@ -23,8 +23,6 @@ namespace Google.Authenticator.WinTest
         {
             this.txtAccountTitle.Text = "QRTestAccount";
             this.txtSecretKey.Text = "f68f1fe894d548a1bbc66165c46e61eb"; //Guid.NewGuid().ToString().Replace("-", "");
-
-
         }
 
         private void btnSetup_Click(object sender, EventArgs e)
