@@ -14,5 +14,14 @@ namespace Google.Authenticator
         /// Base64-encoded PNG image
         /// </summary>
         public string QrCodeSetupImageUrl { get; internal set; }
+
+        public SetupCode() { }
+
+        public SetupCode(string account, string manualEntryKey, string qrCodeSetupImageUrl)
+        {
+            Account = account;
+            ManualEntryKey = manualEntryKey;
+            QrCodeSetupImageUrl = qrCodeSetupImageUrl;
+        }
     }
 }
