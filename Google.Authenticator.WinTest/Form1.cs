@@ -28,7 +28,7 @@ namespace Google.Authenticator.WinTest
         private void btnSetup_Click(object sender, EventArgs e)
         {
             TwoFactorAuthenticator tfA = new TwoFactorAuthenticator();
-            var setupCode = tfA.GenerateSetupCode(this.txtAccountTitle.Text, this.txtSecretKey.Text, pbQR.Width, pbQR.Height);
+            var setupCode = tfA.GenerateSetupCode(this.txtAccountTitle.Text, this.txtAccountTitle.Text, this.txtSecretKey.Text, false, pbQR.Height);
 
             //WebClient wc = new WebClient();
             MemoryStream ms = new MemoryStream(Convert.FromBase64String(setupCode.QrCodeSetupImageUrl));
