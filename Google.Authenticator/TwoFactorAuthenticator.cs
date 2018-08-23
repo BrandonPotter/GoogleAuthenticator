@@ -17,7 +17,7 @@ namespace Google.Authenticator
     /// </summary>
     public class TwoFactorAuthenticator
     {
-        private static DateTime _epoch => new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private readonly static DateTime _epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         private TimeSpan DefaultClockDriftTolerance { get; set; }
 
         public TwoFactorAuthenticator()
