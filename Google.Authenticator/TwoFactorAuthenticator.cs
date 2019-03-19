@@ -53,6 +53,8 @@ namespace Google.Authenticator
             if (accountTitleNoSpaces == null) { throw new NullReferenceException("Account Title is null"); }
             accountTitleNoSpaces = RemoveWhitespace(accountTitleNoSpaces);
             string encodedSecretKey = Base32Encoding.ToString(accountSecretKey);
+            // The padding specified in RFC 3548 section 2.2 is not required and should be omitted.
+            encodedSecretKey = encodedSecretKey.Replace("=", "");
             string provisionUrl = null;
             if (String.IsNullOrWhiteSpace(issuer))
             {
