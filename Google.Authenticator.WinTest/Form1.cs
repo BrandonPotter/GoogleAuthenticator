@@ -23,17 +23,15 @@ namespace Google.Authenticator.WinTest
         {
             this.txtAccountTitle.Text = "QRTestAccount";
             this.txtSecretKey.Text = "f68f1fe894d548a1bbc66165c46e61eb"; //Guid.NewGuid().ToString().Replace("-", "");
-
-
         }
 
         private void btnSetup_Click(object sender, EventArgs e)
         {
             TwoFactorAuthenticator tfA = new TwoFactorAuthenticator();
-            var setupCode = tfA.GenerateSetupCode(this.txtAccountTitle.Text, this.txtSecretKey.Text, pbQR.Width, pbQR.Height);
+            var setupCode = tfA.GenerateSetupCode(this.txtAccountTitle.Text, this.txtAccountTitle.Text, this.txtSecretKey.Text, false, pbQR.Height);
 
-            WebClient wc = new WebClient();
-            MemoryStream ms = new MemoryStream(wc.DownloadData(setupCode.QrCodeSetupImageUrl));
+            //WebClient wc = new WebClient();
+            MemoryStream ms = new MemoryStream(Convert.FromBase64String(setupCode.QrCodeSetupImageUrl));
             this.pbQR.Image = Image.FromStream(ms);
 
             this.txtSetupCode.Text = "Account: " + setupCode.Account + System.Environment.NewLine +

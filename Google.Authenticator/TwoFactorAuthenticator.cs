@@ -1,92 +1,84 @@
-﻿using System;
+﻿using QRCoder;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace Google.Authenticator
 {
+    /// <summary>
+    /// modified from
+    /// http://brandonpotter.com/2014/09/07/implementing-free-two-factor-authentication-in-net-using-google-authenticator/
+    /// https://github.com/brandonpotter/GoogleAuthenticator
+    /// With elements borrowed from https://github.com/stephenlawuk/GoogleAuthenticator
+    /// </summary>
     public class TwoFactorAuthenticator
     {
-        public static DateTime _epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        public TimeSpan DefaultClockDriftTolerance { get; set; }
-        public bool UseManagedSha1Algorithm { get; set; }
-        public bool TryUnmanagedAlgorithmOnFailure { get; set; }
+        private readonly static DateTime _epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private TimeSpan DefaultClockDriftTolerance { get; set; }
 
-        public TwoFactorAuthenticator() : this(true, true) {}
-
-        public TwoFactorAuthenticator(bool useManagedSha1, bool useUnmanagedOnFail)
+        public TwoFactorAuthenticator()
         {
             DefaultClockDriftTolerance = TimeSpan.FromMinutes(5);
-            UseManagedSha1Algorithm = useManagedSha1;
-            TryUnmanagedAlgorithmOnFailure = useUnmanagedOnFail;
         }
 
         /// <summary>
-        /// Generate a setup code for a Google Authenticator user to scan.
+        /// Generate a setup code for a Google Authenticator user to scan
         /// </summary>
+        /// <param name="issuer">Issuer ID (the name of the system, i.e. 'MyApp'), can be omitted but not recommended https://github.com/google/google-authenticator/wiki/Key-Uri-Format </param>
         /// <param name="accountTitleNoSpaces">Account Title (no spaces)</param>
         /// <param name="accountSecretKey">Account Secret Key</param>
-        /// <param name="qrCodeWidth">QR Code Width</param>
-        /// <param name="qrCodeHeight">QR Code Height</param>
+        /// <param name="secretIsBase32">Flag saying if accountSecretKey is in Base32 format or original secret</param>
+        /// <param name="QRPixelsPerModule">Number of pixels per QR Module (2 pixels give ~ 100x100px QRCode)</param>
         /// <returns>SetupCode object</returns>
-        public SetupCode GenerateSetupCode(string accountTitleNoSpaces, string accountSecretKey, int qrCodeWidth, int qrCodeHeight)
+        public SetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces, string accountSecretKey, bool secretIsBase32, int QRPixelsPerModule)
         {
-            return GenerateSetupCode(null, accountTitleNoSpaces, accountSecretKey, qrCodeWidth, qrCodeHeight);
+            byte[] key = secretIsBase32 ? Base32Encoding.ToBytes(accountSecretKey) : Encoding.UTF8.GetBytes(accountSecretKey);
+            return GenerateSetupCode(issuer, accountTitleNoSpaces, key, QRPixelsPerModule);
         }
 
         /// <summary>
-        /// Generate a setup code for a Google Authenticator user to scan (with issuer ID).
+        /// Generate a setup code for a Google Authenticator user to scan
         /// </summary>
-        /// <param name="issuer">Issuer ID (the name of the system, i.e. 'MyApp')</param>
+        /// <param name="issuer">Issuer ID (the name of the system, i.e. 'MyApp'), can be omitted but not recommended https://github.com/google/google-authenticator/wiki/Key-Uri-Format </param>
         /// <param name="accountTitleNoSpaces">Account Title (no spaces)</param>
-        /// <param name="accountSecretKey">Account Secret Key</param>
-        /// <param name="qrCodeWidth">QR Code Width</param>
-        /// <param name="qrCodeHeight">QR Code Height</param>
+        /// <param name="accountSecretKey">Account Secret Key as byte[]</param>
+        /// <param name="QRPixelsPerModule">Number of pixels per QR Module (2 = ~120x120px QRCode)</param>
         /// <returns>SetupCode object</returns>
-        public SetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces, string accountSecretKey, int qrCodeWidth, int qrCodeHeight)
-        {
-            return GenerateSetupCode(issuer, accountTitleNoSpaces, accountSecretKey, qrCodeWidth, qrCodeHeight, false);
-        }
-
-        /// <summary>
-        /// Generate a setup code for a Google Authenticator user to scan (with issuer ID).
-        /// </summary>
-        /// <param name="issuer">Issuer ID (the name of the system, i.e. 'MyApp')</param>
-        /// <param name="accountTitleNoSpaces">Account Title (no spaces)</param>
-        /// <param name="accountSecretKey">Account Secret Key</param>
-        /// <param name="qrCodeWidth">QR Code Width</param>
-        /// <param name="qrCodeHeight">QR Code Height</param>
-        /// <param name="useHttps">Use HTTPS instead of HTTP</param>
-        /// <returns>SetupCode object</returns>
-        public SetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces, string accountSecretKey, int qrCodeWidth, int qrCodeHeight, bool useHttps)
+        public SetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces, byte[] accountSecretKey, int QRPixelsPerModule)
         {
             if (accountTitleNoSpaces == null) { throw new NullReferenceException("Account Title is null"); }
-
-            accountTitleNoSpaces = accountTitleNoSpaces.Replace(" ", "");
-
-            SetupCode sC = new SetupCode();
-            sC.Account = accountTitleNoSpaces;
-            sC.AccountSecretKey = accountSecretKey;
-
-            string encodedSecretKey = EncodeAccountSecretKey(accountSecretKey);
-            sC.ManualEntryKey = encodedSecretKey;
-
+            accountTitleNoSpaces = RemoveWhitespace(accountTitleNoSpaces);
+            string encodedSecretKey = Base32Encoding.ToString(accountSecretKey);
             string provisionUrl = null;
-            
-            if (string.IsNullOrEmpty(issuer))
+            if (String.IsNullOrWhiteSpace(issuer))
             {
-                provisionUrl = UrlEncode(String.Format("otpauth://totp/{0}?secret={1}", accountTitleNoSpaces, encodedSecretKey));
-            } else {
-                provisionUrl = UrlEncode(String.Format("otpauth://totp/{0}?secret={1}&issuer={2}", accountTitleNoSpaces, encodedSecretKey, UrlEncode(issuer)));
+                provisionUrl = String.Format("otpauth://totp/{0}?secret={1}", accountTitleNoSpaces, encodedSecretKey);
             }
+            else
+            {
+                //  https://github.com/google/google-authenticator/wiki/Conflicting-Accounts
+                // Added additional prefix to account otpauth://totp/Company:joe_example@gmail.com for backwards compatibility
+                provisionUrl = String.Format("otpauth://totp/{2}:{0}?secret={1}&issuer={2}", accountTitleNoSpaces, encodedSecretKey, UrlEncode(issuer));
+            }
+            using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+            using (QRCodeData qrCodeData = qrGenerator.CreateQrCode(provisionUrl, QRCodeGenerator.ECCLevel.Q))
+            using (QRCode qrCode = new QRCode(qrCodeData))
+            using (Bitmap qrCodeImage = qrCode.GetGraphic(QRPixelsPerModule))
+            using (MemoryStream ms = new MemoryStream())
+            {
+                qrCodeImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
-            string protocol = useHttps ? "https" : "http";
-            string url = String.Format("{0}://chart.googleapis.com/chart?cht=qr&chs={1}x{2}&chl={3}", protocol, qrCodeWidth, qrCodeHeight, provisionUrl);
+                return new SetupCode(accountTitleNoSpaces, encodedSecretKey, String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ms.ToArray())));
+            }
+        }
 
-            sC.QrCodeSetupImageUrl = url;
-
-            return sC;
+        private static string RemoveWhitespace(string str)
+        {
+            return new string(str.Where(c => !Char.IsWhiteSpace(c)).ToArray());
         }
 
         private string UrlEncode(string value)
@@ -109,62 +101,6 @@ namespace Google.Authenticator
             return result.ToString().Replace(" ", "%20");
         }
 
-        private string EncodeAccountSecretKey(string accountSecretKey)
-        {
-            //if (accountSecretKey.Length < 10)
-            //{
-            //    accountSecretKey = accountSecretKey.PadRight(10, '0');
-            //}
-
-            //if (accountSecretKey.Length > 12)
-            //{
-            //    accountSecretKey = accountSecretKey.Substring(0, 12);
-            //}
-
-            return Base32Encode(Encoding.UTF8.GetBytes(accountSecretKey));
-        }
-
-        private string Base32Encode(byte[] data)
-        {
-            int inByteSize = 8;
-            int outByteSize = 5;
-            char[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".ToCharArray();
-
-            int i = 0, index = 0, digit = 0;
-            int current_byte, next_byte;
-            StringBuilder result = new StringBuilder((data.Length + 7) * inByteSize / outByteSize);
-
-            while (i < data.Length)
-            {
-                current_byte = (data[i] >= 0) ? data[i] : (data[i] + 256); // Unsign
-
-                /* Is the current digit going to span a byte boundary? */
-                if (index > (inByteSize - outByteSize))
-                {
-                    if ((i + 1) < data.Length)
-                        next_byte = (data[i + 1] >= 0) ? data[i + 1] : (data[i + 1] + 256);
-                    else
-                        next_byte = 0;
-
-                    digit = current_byte & (0xFF >> index);
-                    index = (index + outByteSize) % inByteSize;
-                    digit <<= index;
-                    digit |= next_byte >> (inByteSize - index);
-                    i++;
-                }
-                else
-                {
-                    digit = (current_byte >> (inByteSize - (index + outByteSize))) & 0x1F;
-                    index = (index + outByteSize) % inByteSize;
-                    if (index == 0)
-                        i++;
-                }
-                result.Append(alphabet[digit]);
-            }
-
-            return result.ToString();
-        }
-
         public string GeneratePINAtInterval(string accountSecretKey, long counter, int digits = 6)
         {
             return GenerateHashedCode(accountSecretKey, counter, digits);
@@ -185,7 +121,7 @@ namespace Google.Authenticator
                 Array.Reverse(counter);
             }
 
-            HMACSHA1 hmac = getHMACSha1Algorithm(key);
+            HMACSHA1 hmac = new HMACSHA1(key);
                         
             byte[] hash = hmac.ComputeHash(counter);
 
@@ -211,44 +147,7 @@ namespace Google.Authenticator
         {
             return (long)(now - epoch).TotalSeconds / timeStep;
         }
-
-        /// <summary>
-        /// Creates a HMACSHA1 algorithm to use to hash the counter bytes. By default, this will attempt to use
-        /// the managed SHA1 class (SHA1Manager) and on exception (FIPS-compliant machine policy, etc) will attempt
-        /// to use the unmanaged SHA1 class (SHA1CryptoServiceProvider).
-        /// </summary>
-        /// <param name="key">User's secret key, in bytes</param>
-        /// <returns>HMACSHA1 cryptographic algorithm</returns>        
-        private HMACSHA1 getHMACSha1Algorithm(byte[] key)
-        {
-            HMACSHA1 hmac;
-
-            try
-            {
-                hmac = new HMACSHA1(key, UseManagedSha1Algorithm);
-            }
-            catch (InvalidOperationException ioe)
-            {
-                if (UseManagedSha1Algorithm && TryUnmanagedAlgorithmOnFailure)
-                {
-                    try
-                    {
-                        hmac = new HMACSHA1(key, false);
-                    }
-                    catch (InvalidOperationException ioe2)
-                    {
-                        throw ioe2;
-                    }
-                }
-                else
-                {
-                    throw ioe;
-                }
-            }
-
-            return hmac;
-        }
-        
+                
         public bool ValidateTwoFactorPIN(string accountSecretKey, string twoFactorCodeFromClient)
         {
             return ValidateTwoFactorPIN(accountSecretKey, twoFactorCodeFromClient, DefaultClockDriftTolerance);

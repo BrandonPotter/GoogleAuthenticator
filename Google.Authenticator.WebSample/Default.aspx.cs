@@ -19,12 +19,12 @@ namespace Google.Authenticator.WebSample
             this.lblSecretKey.Text = Request.QueryString["key"];
 
             TwoFactorAuthenticator tfa = new TwoFactorAuthenticator();
-            var setupInfo = tfa.GenerateSetupCode("Test Two Factor", "user@example.com", Request.QueryString["key"], 300, 300);
+            var setupInfo = tfa.GenerateSetupCode("Test Two Factor", "user@example.com", Request.QueryString["key"], false, 300);
 
             string qrCodeImageUrl = setupInfo.QrCodeSetupImageUrl;
             string manualEntrySetupCode = setupInfo.ManualEntryKey;
 
-            this.imgQrCode.ImageUrl = qrCodeImageUrl;
+            this.imgQrCode.ImageUrl = "data:image/png;base64," + qrCodeImageUrl;
             this.lblManualSetupCode.Text = manualEntrySetupCode;
         }
 
