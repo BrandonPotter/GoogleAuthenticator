@@ -56,13 +56,13 @@ namespace Google.Authenticator
             string provisionUrl = null;
             if (String.IsNullOrWhiteSpace(issuer))
             {
-                provisionUrl = String.Format("otpauth://totp/{0}?secret={1}", accountTitleNoSpaces, encodedSecretKey);
+                provisionUrl = String.Format("otpauth://totp/{0}?secret={1}", accountTitleNoSpaces, encodedSecretKey.Trim('='));
             }
             else
             {
                 //  https://github.com/google/google-authenticator/wiki/Conflicting-Accounts
                 // Added additional prefix to account otpauth://totp/Company:joe_example@gmail.com for backwards compatibility
-                provisionUrl = String.Format("otpauth://totp/{2}:{0}?secret={1}&issuer={2}", accountTitleNoSpaces, encodedSecretKey, UrlEncode(issuer));
+                provisionUrl = String.Format("otpauth://totp/{2}:{0}?secret={1}&issuer={2}", accountTitleNoSpaces, encodedSecretKey.Trim('='), UrlEncode(issuer));
             }
             using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
             using (QRCodeData qrCodeData = qrGenerator.CreateQrCode(provisionUrl, QRCodeGenerator.ECCLevel.Q))
@@ -72,7 +72,7 @@ namespace Google.Authenticator
             {
                 qrCodeImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
-                return new SetupCode(accountTitleNoSpaces, encodedSecretKey, String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ms.ToArray())));
+                return new SetupCode(accountTitleNoSpaces, encodedSecretKey.Trim('='), String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ms.ToArray())));
             }
         }
 
