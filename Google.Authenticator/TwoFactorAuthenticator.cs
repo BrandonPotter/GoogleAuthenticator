@@ -22,7 +22,7 @@ namespace Google.Authenticator
 
         public TwoFactorAuthenticator()
         {
-            DefaultClockDriftTolerance = TimeSpan.FromMinutes(5);
+            DefaultClockDriftTolerance = TimeSpan.FromSeconds(60);
         }
 
         /// <summary>
@@ -50,10 +50,10 @@ namespace Google.Authenticator
         /// <returns>SetupCode object</returns>
         public SetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces, byte[] accountSecretKey, int QRPixelsPerModule)
         {
-            if (accountTitleNoSpaces == null) { throw new NullReferenceException("Account Title is null"); }
-            accountTitleNoSpaces = RemoveWhitespace(accountTitleNoSpaces);
+            if (String.IsNullOrWhiteSpace(accountTitleNoSpaces)) { throw new NullReferenceException("Account Title is null"); }
+            accountTitleNoSpaces = RemoveWhitespace(Uri.EscapeUriString(accountTitleNoSpaces));
             string encodedSecretKey = Base32Encoding.ToString(accountSecretKey);
-            string provisionUrl = null;
+            string provisionUrl;
             if (String.IsNullOrWhiteSpace(issuer))
             {
                 provisionUrl = String.Format("otpauth://totp/{0}?secret={1}", accountTitleNoSpaces, encodedSecretKey.Trim('='));
