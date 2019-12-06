@@ -22,7 +22,7 @@ namespace Google.Authenticator
 
         public TwoFactorAuthenticator()
         {
-            DefaultClockDriftTolerance = TimeSpan.FromSeconds(60);
+            DefaultClockDriftTolerance = TimeSpan.FromMinutes(5);
         }
 
         /// <summary>
