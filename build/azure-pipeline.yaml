@@ -1,7 +1,6 @@
-
 name: NewOrbit.NewOrbit.AddOne - build and test
 trigger: [ master ]
-pr: [ * ]
+pr: [ master ]
 
 variables:
   buildConfiguration: Release
