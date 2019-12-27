@@ -28,11 +28,11 @@ namespace Google.Authenticator.WinTest
         private void btnSetup_Click(object sender, EventArgs e)
         {
             TwoFactorAuthenticator tfA = new TwoFactorAuthenticator();
-            var setupCode = tfA.GenerateSetupCode(this.txtAccountTitle.Text, this.txtAccountTitle.Text, this.txtSecretKey.Text, false, pbQR.Height);
+            var setupCode = tfA.GenerateSetupCode(this.txtAccountTitle.Text, this.txtAccountTitle.Text, this.txtSecretKey.Text, false, 3);
 
             //WebClient wc = new WebClient();
-            MemoryStream ms = new MemoryStream(Convert.FromBase64String(setupCode.QrCodeSetupImageUrl));
-            this.pbQR.Image = Image.FromStream(ms);
+            using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(setupCode.QrCodeSetupImageUrl.Replace("data:image/png;base64,", ""))))
+                this.pbQR.Image = Image.FromStream(ms);
 
             this.txtSetupCode.Text = "Account: " + setupCode.Account + System.Environment.NewLine +
                 "Secret Key: " + setupCode.AccountSecretKey + System.Environment.NewLine +
