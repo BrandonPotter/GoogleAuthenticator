@@ -10,9 +10,6 @@ pool:
 
 steps:
 
-- script: set
-  displayName: show variables
-
 # There is a legacy project in the solution that dotnet won't build, so restoring and building individual projects
 - script: dotnet restore ./Google.Authenticator/Google.Authenticator.csproj 
   displayName: dotnet restore package
