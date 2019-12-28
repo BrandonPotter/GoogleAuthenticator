@@ -1,7 +1,8 @@
 # GoogleAuthenticator
 Simple, easy to use server-side two-factor authentication library for .NET that works with Google Authenticator
 
-[![Build status](https://ci.appveyor.com/api/projects/status/af654g26n9l3840p?svg=true)](https://ci.appveyor.com/project/BrandonPotter/googleauthenticator)
+
+[![Build Status](https://dev.azure.com/brandon-potter/GoogleAuthenticator/_apis/build/status/1?branchName=master)](https://dev.azure.com/brandon-potter/GoogleAuthenticator/_build/latest?definitionId=1&branchName=master)
 
 [`Install-Package GoogleAuthenticator`](https://www.nuget.org/packages/GoogleAuthenticator)
 
