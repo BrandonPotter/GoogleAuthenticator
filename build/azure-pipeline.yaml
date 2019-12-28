@@ -35,7 +35,7 @@ steps:
 
 # This creates the Nuget package only if the change was from "master". It also supports publishing from a "develop" branch, which is not currently used in this project
 - script: dotnet pack ./Google.Authenticator/Google.Authenticator.csproj --configuration $(buildConfiguration) --no-build --output %Build_ArtifactStagingDirectory%
-  #condition: and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'master'),eq(variables['Build.SourceBranchName'], 'develop')))
+  condition: and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'master'),eq(variables['Build.SourceBranchName'], 'develop')))
   displayName: pack
 
 - task: PublishBuildArtifacts@1
