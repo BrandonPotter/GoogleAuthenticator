@@ -65,7 +65,7 @@ namespace Google.Authenticator
                 provisionUrl = String.Format("otpauth://totp/{2}:{0}?secret={1}&issuer={2}", accountTitleNoSpaces, encodedSecretKey.Trim('='), UrlEncode(issuer));
             }
 
-            string qrCodeUrl = null;
+            string qrCodeUrl = string.Empty;
             if (generateQrCode)
             {
                 using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
