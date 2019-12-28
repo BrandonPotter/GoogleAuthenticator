@@ -6,7 +6,7 @@ namespace Google.Authenticator.Tests
 {
     public class AuthCodeTest
     {
-                [Fact]
+        [Fact]
         public void BasicAuthCodeTest()
         {
             string secretKey = "PJWUMZKAUUFQKJBAMD6VGJ6RULFVW4ZH";
@@ -19,9 +19,7 @@ namespace Google.Authenticator.Tests
             // I actually think you are supposed to divide the time by 30 seconds? Maybe need an overload that takes a DateTime?
             var actual = tfa.GeneratePINAtInterval(secretKey, currentTime, 6);
 
-            actual.ShouldBe(expected);  
-
-            
+            actual.ShouldBe(expected);   
         }
     }
 }
