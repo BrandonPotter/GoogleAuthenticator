@@ -35,6 +35,11 @@ steps:
   condition: and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'master'),eq(variables['Build.SourceBranchName'], 'develop')))
   displayName: pack
 
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: NugetPackage
+
 # The below will publish the package to Nuget, but requires feed credentials "Nuget" to be created first
 # It also has support for a "develop" branch in case you ever want to use that for pre-releases
 # Alternatively, set up a Release pipeline to publish only when you want to
