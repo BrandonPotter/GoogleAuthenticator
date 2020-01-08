@@ -35,7 +35,7 @@ namespace Google.Authenticator.WinTest
                 this.pbQR.Image = Image.FromStream(ms);
 
             this.txtSetupCode.Text = "Account: " + setupCode.Account + System.Environment.NewLine +
-                "Secret Key: " + setupCode.AccountSecretKey + System.Environment.NewLine +
+                "Secret Key: " + this.txtSecretKey.Text + System.Environment.NewLine +
                 "Encoded Key: " + setupCode.ManualEntryKey;
         }
 
