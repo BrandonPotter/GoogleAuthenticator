@@ -24,7 +24,7 @@ namespace Google.Authenticator.WebSample
             string qrCodeImageUrl = setupInfo.QrCodeSetupImageUrl;
             string manualEntrySetupCode = setupInfo.ManualEntryKey;
 
-            this.imgQrCode.ImageUrl = "data:image/png;base64," + qrCodeImageUrl;
+            this.imgQrCode.ImageUrl = qrCodeImageUrl;
             this.lblManualSetupCode.Text = manualEntrySetupCode;
         }
 
