@@ -108,6 +108,11 @@ namespace Google.Authenticator
             return result.ToString().Replace(" ", "%20");
         }
 
+        public string GeneratePINAtInterval(byte[] accountSecretKey, long counter, int digits = 6)
+        {
+            return GenerateHashedCode(accountSecretKey, counter, digits);
+        }
+
         public string GeneratePINAtInterval(string accountSecretKey, long counter, int digits = 6)
         {
             return GenerateHashedCode(accountSecretKey, counter, digits);
@@ -154,7 +159,18 @@ namespace Google.Authenticator
         {
             return (long)(now - epoch).TotalSeconds / timeStep;
         }
-                
+        
+        public bool ValidateTwoFactorPIN(byte[] accountSecretKey, string twoFactorCodeFromClient)
+        {
+            return ValidateTwoFactorPIN(accountSecretKey, twoFactorCodeFromClient, DefaultClockDriftTolerance);
+        }
+
+        public bool ValidateTwoFactorPIN(byte[] accountSecretKey, string twoFactorCodeFromClient, TimeSpan timeTolerance)
+        {
+            var codes = GetCurrentPINs(accountSecretKey, timeTolerance);
+            return codes.Any(c => c == twoFactorCodeFromClient);
+        }
+
         public bool ValidateTwoFactorPIN(string accountSecretKey, string twoFactorCodeFromClient)
         {
             return ValidateTwoFactorPIN(accountSecretKey, twoFactorCodeFromClient, DefaultClockDriftTolerance);
@@ -171,14 +187,41 @@ namespace Google.Authenticator
             return GeneratePINAtInterval(accountSecretKey, GetCurrentCounter());
         }
         
-         public string GetCurrentPIN(string accountSecretKey,DateTime now)
+        public string GetCurrentPIN(string accountSecretKey, DateTime now)
         {
             return GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(now,_epoch,30));
+        }
+
+        public string[] GetCurrentPINs(byte[] accountSecretKey)
+        {
+            return GetCurrentPINs(accountSecretKey, DefaultClockDriftTolerance);
         }
 
         public string[] GetCurrentPINs(string accountSecretKey)
         {
             return GetCurrentPINs(accountSecretKey, DefaultClockDriftTolerance);
+        }
+
+        public string[] GetCurrentPINs(byte[] accountSecretKey, TimeSpan timeTolerance)
+        {
+            List<string> codes = new List<string>();
+            long iterationCounter = GetCurrentCounter();
+            int iterationOffset = 0;
+
+            if (timeTolerance.TotalSeconds > 30)
+            {
+                iterationOffset = Convert.ToInt32(timeTolerance.TotalSeconds / 30.00);
+            }
+
+            long iterationStart = iterationCounter - iterationOffset;
+            long iterationEnd = iterationCounter + iterationOffset;
+
+            for (long counter = iterationStart; counter <= iterationEnd; counter++)
+            {
+                codes.Add(GeneratePINAtInterval(accountSecretKey, counter));
+            }
+
+            return codes.ToArray();
         }
 
         public string[] GetCurrentPINs(string accountSecretKey, TimeSpan timeTolerance)
