@@ -129,7 +129,7 @@ namespace Google.Authenticator
             }
 
             HMACSHA1 hmac = new HMACSHA1(key);
-                        
+
             byte[] hash = hmac.ComputeHash(counter);
 
             int offset = hash[hash.Length - 1] & 0xf;
@@ -154,7 +154,7 @@ namespace Google.Authenticator
         {
             return (long)(now - epoch).TotalSeconds / timeStep;
         }
-                
+
         public bool ValidateTwoFactorPIN(string accountSecretKey, string twoFactorCodeFromClient)
         {
             return ValidateTwoFactorPIN(accountSecretKey, twoFactorCodeFromClient, DefaultClockDriftTolerance);
@@ -170,10 +170,10 @@ namespace Google.Authenticator
         {
             return GeneratePINAtInterval(accountSecretKey, GetCurrentCounter());
         }
-        
-         public string GetCurrentPIN(string accountSecretKey,DateTime now)
+
+        public string GetCurrentPIN(string accountSecretKey, DateTime now)
         {
-            return GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(now,_epoch,30));
+            return GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(now, _epoch, 30));
         }
 
         public string[] GetCurrentPINs(string accountSecretKey)
