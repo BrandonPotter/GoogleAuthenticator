@@ -8,3 +8,6 @@ Simple, easy to use server-side two-factor authentication library for .NET that 
 See blog post for usage instructions:
 
 https://csharprookie.wordpress.com/2015/03/17/implementing-free-two-factor-authentication-in-net-using-google-authenticator/
+
+# Notes
+On linux, you need to ensure `libgdiplus` is installed if you want to generate QR Codes. See [https://github.com/codebude/QRCoder/issues/227](https://github.com/codebude/QRCoder/issues/227).
