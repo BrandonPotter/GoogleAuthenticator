@@ -68,15 +68,28 @@ namespace Google.Authenticator
             string qrCodeUrl = string.Empty;
             if (generateQrCode)
             {
-                using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
-                using (QRCodeData qrCodeData = qrGenerator.CreateQrCode(provisionUrl, QRCodeGenerator.ECCLevel.Q))
-                using (QRCode qrCode = new QRCode(qrCodeData))
-                using (Bitmap qrCodeImage = qrCode.GetGraphic(QRPixelsPerModule))
-                using (MemoryStream ms = new MemoryStream())
+                try
                 {
-                    qrCodeImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+                    using (QRCodeData qrCodeData = qrGenerator.CreateQrCode(provisionUrl, QRCodeGenerator.ECCLevel.Q))
+                    using (QRCode qrCode = new QRCode(qrCodeData))
+                    using (Bitmap qrCodeImage = qrCode.GetGraphic(QRPixelsPerModule))
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        qrCodeImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
-                    qrCodeUrl = String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ms.ToArray()));
+                        qrCodeUrl = String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ms.ToArray()));
+                    }
+                }
+                catch (System.TypeInitializationException e)  
+                {
+                    if (e.InnerException != null 
+                        && e.InnerException.GetType() == typeof(System.DllNotFoundException)
+                        && e.InnerException.Message.Contains("libgdiplus"))
+                    {
+                        throw new MissingDependencyException("It looks like libgdiplus has not been installed - see https://github.com/codebude/QRCoder/issues/227", e);
+                    }
+
                 }
             }
 
