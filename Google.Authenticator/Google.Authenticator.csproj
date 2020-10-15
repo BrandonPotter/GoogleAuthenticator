@@ -7,7 +7,7 @@
     <Description>Google Authenticator Two-Factor Authentication Library (Not officially affiliated with Google.)</Description>
     <Authors>Brandon Potter</Authors>
     <Company>Brandon Potter</Company>
-    <Version>2.1.0</Version>
+    <Version>2.1.1</Version>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/BrandonPotter/GoogleAuthenticator</PackageProjectUrl>
     <PackageId>GoogleAuthenticator</PackageId>
