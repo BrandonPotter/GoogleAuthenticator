@@ -194,3 +194,11 @@ FakesAssemblies/
 # Visual Studio 6 workspace options file
 *.opt
 .vscode/
+.idea/.idea.Google.Authenticator/.idea/.name
+.idea/.idea.Google.Authenticator/.idea/codeStyles/codeStyleConfig.xml
+.idea/.idea.Google.Authenticator/.idea/encodings.xml
+.idea/.idea.Google.Authenticator/.idea/indexLayout.xml
+.idea/.idea.Google.Authenticator/.idea/projectSettingsUpdater.xml
+.idea/.idea.Google.Authenticator/.idea/vcs.xml
+.idea/.idea.Google.Authenticator/.idea/workspace.xml
+.idea/config/applicationhost.config
