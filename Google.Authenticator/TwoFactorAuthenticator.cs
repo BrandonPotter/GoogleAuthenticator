@@ -190,14 +190,18 @@ namespace Google.Authenticator
         private long GetCurrentCounter(DateTime now, DateTime epoch, int timeStep) =>
             (long) (now - epoch).TotalSeconds / timeStep;
 
-        public bool ValidateTwoFactorPIN(string accountSecretKey, string twoFactorCodeFromClient) =>
-            ValidateTwoFactorPIN(accountSecretKey, twoFactorCodeFromClient, DefaultClockDriftTolerance);
+        public bool ValidateTwoFactorPIN(
+            string accountSecretKey, 
+            string twoFactorCodeFromClient,
+            bool secretIsBase32 = false) =>
+            ValidateTwoFactorPIN(accountSecretKey, twoFactorCodeFromClient, DefaultClockDriftTolerance, secretIsBase32);
 
         public bool ValidateTwoFactorPIN(
             string accountSecretKey,
             string twoFactorCodeFromClient,
-            TimeSpan timeTolerance)
-            => GetCurrentPINs(accountSecretKey, timeTolerance).Any(c => c == twoFactorCodeFromClient);
+            TimeSpan timeTolerance,
+            bool secretIsBase32 = false) =>
+            GetCurrentPINs(accountSecretKey, timeTolerance, secretIsBase32).Any(c => c == twoFactorCodeFromClient);
 
         public string GetCurrentPIN(string accountSecretKey, bool secretIsBase32 = false) =>
             GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(), secretIsBase32: secretIsBase32);
