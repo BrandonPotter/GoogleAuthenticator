@@ -15,7 +15,9 @@ namespace Google.Authenticator
         public static byte[] ToBytes(string input)
         {
             if (string.IsNullOrEmpty(input))
+            {
                 throw new ArgumentNullException(nameof(input));
+            }
 
             input = input.TrimEnd('='); //remove padding characters
             var byteCount = input.Length * 5 / 8; //this must be TRUNCATED
@@ -31,15 +33,15 @@ namespace Google.Authenticator
                 if (bitsRemaining > 5)
                 {
                     mask = cValue << (bitsRemaining - 5);
-                    curByte = (byte)(curByte | mask);
+                    curByte = (byte) (curByte | mask);
                     bitsRemaining -= 5;
                 }
                 else
                 {
                     mask = cValue >> (5 - bitsRemaining);
-                    curByte = (byte)(curByte | mask);
+                    curByte = (byte) (curByte | mask);
                     returnArray[arrayIndex++] = curByte;
-                    curByte = (byte)(cValue << (3 + bitsRemaining));
+                    curByte = (byte) (cValue << (3 + bitsRemaining));
                     bitsRemaining += 3;
                 }
             }
@@ -59,9 +61,11 @@ namespace Google.Authenticator
         public static string ToString(byte[] input)
         {
             if (input == null || input.Length == 0)
+            {
                 throw new ArgumentNullException(nameof(input));
+            }
 
-            var charCount = (int)Math.Ceiling(input.Length / 5d) * 8;
+            var charCount = (int) Math.Ceiling(input.Length / 5d) * 8;
             var returnArray = new char[charCount];
 
             byte nextChar = 0, bitsRemaining = 5;
@@ -69,18 +73,18 @@ namespace Google.Authenticator
 
             foreach (var b in input)
             {
-                nextChar = (byte)(nextChar | (b >> (8 - bitsRemaining)));
+                nextChar = (byte) (nextChar | (b >> (8 - bitsRemaining)));
                 returnArray[arrayIndex++] = ValueToChar(nextChar);
 
                 if (bitsRemaining < 4)
                 {
-                    nextChar = (byte)((b >> (3 - bitsRemaining)) & 31);
+                    nextChar = (byte) ((b >> (3 - bitsRemaining)) & 31);
                     returnArray[arrayIndex++] = ValueToChar(nextChar);
                     bitsRemaining += 5;
                 }
 
                 bitsRemaining -= 3;
-                nextChar = (byte)((b << bitsRemaining) & 31);
+                nextChar = (byte) ((b << bitsRemaining) & 31);
             }
 
             //if we didn't end with a full char
@@ -95,19 +99,25 @@ namespace Google.Authenticator
 
         private static int CharToValue(char c)
         {
-            var value = (int)c;
+            var value = (int) c;
 
             //65-90 == uppercase letters
             if (value < 91 && value > 64)
+            {
                 return value - 65;
-            
+            }
+
             //50-55 == numbers 2-7
             if (value < 56 && value > 49)
+            {
                 return value - 24;
-           
+            }
+
             //97-122 == lowercase letters
             if (value < 123 && value > 96)
+            {
                 return value - 97;
+            }
 
             throw new ArgumentException("Character is not a Base32 character.", nameof(c));
         }
@@ -115,13 +125,16 @@ namespace Google.Authenticator
         private static char ValueToChar(byte b)
         {
             if (b < 26)
-                return (char)(b + 65);
+            {
+                return (char) (b + 65);
+            }
 
             if (b < 32)
-                return (char)(b + 24);
+            {
+                return (char) (b + 24);
+            }
 
             throw new ArgumentException("Byte is not a value Base32 value.", nameof(b));
         }
-
     }
 }

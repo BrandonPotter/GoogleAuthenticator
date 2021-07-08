@@ -16,8 +16,9 @@ namespace Google.Authenticator
     /// </summary>
     public class TwoFactorAuthenticator
     {
-        private static readonly DateTime _epoch = 
+        private static readonly DateTime _epoch =
             new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         private TimeSpan DefaultClockDriftTolerance { get; set; }
 
         public TwoFactorAuthenticator() => DefaultClockDriftTolerance = TimeSpan.FromMinutes(5);
@@ -35,16 +36,16 @@ namespace Google.Authenticator
         /// should be 10 or less)</param>
         /// <returns>SetupCode object</returns>
         public SetupCode GenerateSetupCode(
-            string issuer, 
-            string accountTitleNoSpaces, 
+            string issuer,
+            string accountTitleNoSpaces,
             string accountSecretKey,
-            bool secretIsBase32, 
+            bool secretIsBase32,
             int qrPixelsPerModule = 3)
         {
             var key = secretIsBase32
                 ? Base32Encoding.ToBytes(accountSecretKey)
                 : Encoding.UTF8.GetBytes(accountSecretKey);
-            
+
             return GenerateSetupCode(issuer, accountTitleNoSpaces, key, qrPixelsPerModule);
         }
 
@@ -67,21 +68,24 @@ namespace Google.Authenticator
             bool generateQrCode = true)
         {
             if (string.IsNullOrWhiteSpace(accountTitleNoSpaces))
+            {
                 throw new NullReferenceException("Account Title is null");
-            
+            }
+
             accountTitleNoSpaces = RemoveWhitespace(Uri.EscapeUriString(accountTitleNoSpaces));
             var encodedSecretKey = Base32Encoding.ToString(accountSecretKey);
+
             var provisionUrl = string.IsNullOrWhiteSpace(issuer)
                 ? $"otpauth://totp/{accountTitleNoSpaces}?secret={encodedSecretKey.Trim('=')}"
+                //  https://github.com/google/google-authenticator/wiki/Conflicting-Accounts
+                // Added additional prefix to account otpauth://totp/Company:joe_example@gmail.com
+                // for backwards compatibility
                 : $"otpauth://totp/{UrlEncode(issuer)}:{accountTitleNoSpaces}?secret={encodedSecretKey.Trim('=')}&issuer={UrlEncode(issuer)}";
-
-            if (!generateQrCode)
-                return new SetupCode(accountTitleNoSpaces, encodedSecretKey.Trim('='), "");
 
             return new SetupCode(
                 accountTitleNoSpaces,
                 encodedSecretKey.Trim('='),
-                GenerateQrCodeUrl(qrPixelsPerModule, provisionUrl));
+                generateQrCode ? GenerateQrCodeUrl(qrPixelsPerModule, provisionUrl) : "");
         }
 
         private static string GenerateQrCodeUrl(int qrPixelsPerModule, string provisionUrl)
@@ -96,7 +100,6 @@ namespace Google.Authenticator
                 using (var ms = new MemoryStream())
                 {
                     qrCodeImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-
                     qrCodeUrl = $"data:image/png;base64,{Convert.ToBase64String(ms.ToArray())}";
                 }
             }
@@ -126,7 +129,7 @@ namespace Google.Authenticator
             return qrCodeUrl;
         }
 
-        private static string RemoveWhitespace(string str) => 
+        private static string RemoveWhitespace(string str) =>
             new string(str.Where(c => !char.IsWhiteSpace(c)).ToArray());
 
         private string UrlEncode(string value)
@@ -137,29 +140,37 @@ namespace Google.Authenticator
             foreach (var symbol in value)
             {
                 if (validChars.IndexOf(symbol) == -1)
+                {
                     result.AppendFormat("%{0:X2}", (int) symbol);
+                }
                 else
+                {
                     result.Append(symbol);
+                }
             }
 
             return result.Replace(" ", "%20").ToString();
         }
 
         public string GeneratePINAtInterval(
-            string accountSecretKey, 
+            string accountSecretKey,
             long counter,
-            int digits = 6, 
+            int digits = 6,
             bool secretIsBase32 = false)
-            => GenerateHashedCode(accountSecretKey, counter, secretIsBase32, digits);
+        {
+            return GenerateHashedCode(accountSecretKey, counter, secretIsBase32, digits);
+        }
 
         private string GenerateHashedCode(string secret,
             long iterationNumber,
             bool secretIsBase32,
             int digits = 6)
-            => GenerateHashedCode(
-                secretIsBase32 ? Base32Encoding.ToBytes(secret):Encoding.UTF8.GetBytes(secret), 
+        {
+            return GenerateHashedCode(
+                secretIsBase32 ? Base32Encoding.ToBytes(secret) : Encoding.UTF8.GetBytes(secret),
                 iterationNumber,
                 digits);
+        }
 
         private string GenerateHashedCode(byte[] key, long iterationNumber, int digits = 6)
         {
@@ -169,9 +180,7 @@ namespace Google.Authenticator
                 Array.Reverse(counter);
 
             var hmac = new HMACSHA1(key);
-
             var hash = hmac.ComputeHash(counter);
-
             var offset = hash[hash.Length - 1] & 0xf;
 
             // Convert the 4 bytes into an integer, ignoring the sign.
@@ -191,17 +200,23 @@ namespace Google.Authenticator
             (long) (now - epoch).TotalSeconds / timeStep;
 
         public bool ValidateTwoFactorPIN(
-            string accountSecretKey, 
+            string accountSecretKey,
             string twoFactorCodeFromClient,
-            bool secretIsBase32 = false) =>
-            ValidateTwoFactorPIN(accountSecretKey, twoFactorCodeFromClient, DefaultClockDriftTolerance, secretIsBase32);
+            bool secretIsBase32 = false)
+        {
+            return ValidateTwoFactorPIN(accountSecretKey, twoFactorCodeFromClient, DefaultClockDriftTolerance,
+                secretIsBase32);
+        }
 
         public bool ValidateTwoFactorPIN(
             string accountSecretKey,
             string twoFactorCodeFromClient,
             TimeSpan timeTolerance,
-            bool secretIsBase32 = false) =>
-            GetCurrentPINs(accountSecretKey, timeTolerance, secretIsBase32).Any(c => c == twoFactorCodeFromClient);
+            bool secretIsBase32 = false)
+        {
+            return GetCurrentPINs(accountSecretKey, timeTolerance, secretIsBase32)
+                .Any(c => c == twoFactorCodeFromClient);
+        }
 
         public string GetCurrentPIN(string accountSecretKey, bool secretIsBase32 = false) =>
             GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(), secretIsBase32: secretIsBase32);
