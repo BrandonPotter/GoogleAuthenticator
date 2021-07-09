@@ -1,7 +1,6 @@
 ﻿using QRCoder;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -17,206 +16,234 @@ namespace Google.Authenticator
     /// </summary>
     public class TwoFactorAuthenticator
     {
-        private readonly static DateTime _epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime _epoch =
+            new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         private TimeSpan DefaultClockDriftTolerance { get; set; }
 
-        public TwoFactorAuthenticator()
-        {
-            DefaultClockDriftTolerance = TimeSpan.FromMinutes(5);
-        }
+        public TwoFactorAuthenticator() => DefaultClockDriftTolerance = TimeSpan.FromMinutes(5);
 
         /// <summary>
         /// Generate a setup code for a Google Authenticator user to scan
         /// </summary>
-        /// <param name="issuer">Issuer ID (the name of the system, i.e. 'MyApp'), can be omitted but not recommended https://github.com/google/google-authenticator/wiki/Key-Uri-Format </param>
+        /// <param name="issuer">Issuer ID (the name of the system, i.e. 'MyApp'),
+        /// can be omitted but not recommended https://github.com/google/google-authenticator/wiki/Key-Uri-Format
+        /// </param>
         /// <param name="accountTitleNoSpaces">Account Title (no spaces)</param>
         /// <param name="accountSecretKey">Account Secret Key</param>
         /// <param name="secretIsBase32">Flag saying if accountSecretKey is in Base32 format or original secret</param>
-        /// <param name="QRPixelsPerModule">Number of pixels per QR Module (2 pixels give ~ 100x100px QRCode, should be 10 or less)</param>
+        /// <param name="qrPixelsPerModule">Number of pixels per QR Module (2 pixels give ~ 100x100px QRCode,
+        /// should be 10 or less)</param>
         /// <returns>SetupCode object</returns>
-        public SetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces, string accountSecretKey, bool secretIsBase32, int QRPixelsPerModule = 3)
+        public SetupCode GenerateSetupCode(
+            string issuer,
+            string accountTitleNoSpaces,
+            string accountSecretKey,
+            bool secretIsBase32,
+            int qrPixelsPerModule = 3)
         {
-            byte[] key = secretIsBase32 ? Base32Encoding.ToBytes(accountSecretKey) : Encoding.UTF8.GetBytes(accountSecretKey);
-            return GenerateSetupCode(issuer, accountTitleNoSpaces, key, QRPixelsPerModule);
+            var key = secretIsBase32
+                ? Base32Encoding.ToBytes(accountSecretKey)
+                : Encoding.UTF8.GetBytes(accountSecretKey);
+
+            return GenerateSetupCode(issuer, accountTitleNoSpaces, key, qrPixelsPerModule);
         }
 
         /// <summary>
         /// Generate a setup code for a Google Authenticator user to scan
         /// </summary>
-        /// <param name="issuer">Issuer ID (the name of the system, i.e. 'MyApp'), can be omitted but not recommended https://github.com/google/google-authenticator/wiki/Key-Uri-Format </param>
+        /// <param name="issuer">Issuer ID (the name of the system, i.e. 'MyApp'), can be omitted but not
+        /// recommended https://github.com/google/google-authenticator/wiki/Key-Uri-Format </param>
         /// <param name="accountTitleNoSpaces">Account Title (no spaces)</param>
         /// <param name="accountSecretKey">Account Secret Key as byte[]</param>
-        /// <param name="QRPixelsPerModule">Number of pixels per QR Module (2 = ~120x120px QRCode, should be 10 or less)</param>
+        /// <param name="qrPixelsPerModule">Number of pixels per QR Module
+        /// (2 = ~120x120px QRCode, should be 10 or less)</param>
+        /// <param name="generateQrCode"></param>
         /// <returns>SetupCode object</returns>
-        public SetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces, byte[] accountSecretKey, int QRPixelsPerModule = 3, bool generateQrCode = true)
+        public SetupCode GenerateSetupCode(
+            string issuer,
+            string accountTitleNoSpaces,
+            byte[] accountSecretKey,
+            int qrPixelsPerModule = 3,
+            bool generateQrCode = true)
         {
-            if (String.IsNullOrWhiteSpace(accountTitleNoSpaces)) { throw new NullReferenceException("Account Title is null"); }
+            if (string.IsNullOrWhiteSpace(accountTitleNoSpaces))
+            {
+                throw new NullReferenceException("Account Title is null");
+            }
+
             accountTitleNoSpaces = RemoveWhitespace(Uri.EscapeUriString(accountTitleNoSpaces));
-            string encodedSecretKey = Base32Encoding.ToString(accountSecretKey);
-            string provisionUrl;
-            if (String.IsNullOrWhiteSpace(issuer))
-            {
-                provisionUrl = String.Format("otpauth://totp/{0}?secret={1}", accountTitleNoSpaces, encodedSecretKey.Trim('='));
-            }
-            else
-            {
+            var encodedSecretKey = Base32Encoding.ToString(accountSecretKey);
+
+            var provisionUrl = string.IsNullOrWhiteSpace(issuer)
+                ? $"otpauth://totp/{accountTitleNoSpaces}?secret={encodedSecretKey.Trim('=')}"
                 //  https://github.com/google/google-authenticator/wiki/Conflicting-Accounts
-                // Added additional prefix to account otpauth://totp/Company:joe_example@gmail.com for backwards compatibility
-                provisionUrl = String.Format("otpauth://totp/{2}:{0}?secret={1}&issuer={2}", accountTitleNoSpaces, encodedSecretKey.Trim('='), UrlEncode(issuer));
-            }
+                // Added additional prefix to account otpauth://totp/Company:joe_example@gmail.com
+                // for backwards compatibility
+                : $"otpauth://totp/{UrlEncode(issuer)}:{accountTitleNoSpaces}?secret={encodedSecretKey.Trim('=')}&issuer={UrlEncode(issuer)}";
 
-            string qrCodeUrl = string.Empty;
-            if (generateQrCode)
-            {
-                try
-                {
-                    using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
-                    using (QRCodeData qrCodeData = qrGenerator.CreateQrCode(provisionUrl, QRCodeGenerator.ECCLevel.Q))
-                    using (QRCode qrCode = new QRCode(qrCodeData))
-                    using (Bitmap qrCodeImage = qrCode.GetGraphic(QRPixelsPerModule))
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        qrCodeImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-
-                        qrCodeUrl = String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ms.ToArray()));
-                    }
-                }
-                catch (System.TypeInitializationException e)  
-                {
-                    if (e.InnerException != null 
-                        && e.InnerException.GetType() == typeof(System.DllNotFoundException)
-                        && e.InnerException.Message.Contains("libgdiplus"))
-                    {
-                        throw new MissingDependencyException("It looks like libgdiplus has not been installed - see https://github.com/codebude/QRCoder/issues/227", e);
-                    }
-                }
-                catch (System.Runtime.InteropServices.ExternalException e)
-                {
-                    if (e.Message.Contains("GDI+") && QRPixelsPerModule > 10)
-                    {
-                        throw new QRException($"There was a problem generating a QR code. The value of {nameof(QRPixelsPerModule)} should be set to a value of 10 or less for optimal results.", e);
-                    }
-                }
-            }
-
-            return new SetupCode(accountTitleNoSpaces, encodedSecretKey.Trim('='), qrCodeUrl);
+            return new SetupCode(
+                accountTitleNoSpaces,
+                encodedSecretKey.Trim('='),
+                generateQrCode ? GenerateQrCodeUrl(qrPixelsPerModule, provisionUrl) : "");
         }
 
-        private static string RemoveWhitespace(string str)
+        private static string GenerateQrCodeUrl(int qrPixelsPerModule, string provisionUrl)
         {
-            return new string(str.Where(c => !Char.IsWhiteSpace(c)).ToArray());
+            var qrCodeUrl = "";
+            try
+            {
+                using (var qrGenerator = new QRCodeGenerator())
+                using (var qrCodeData = qrGenerator.CreateQrCode(provisionUrl, QRCodeGenerator.ECCLevel.Q))
+                using (var qrCode = new QRCode(qrCodeData))
+                using (var qrCodeImage = qrCode.GetGraphic(qrPixelsPerModule))
+                using (var ms = new MemoryStream())
+                {
+                    qrCodeImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    qrCodeUrl = $"data:image/png;base64,{Convert.ToBase64String(ms.ToArray())}";
+                }
+            }
+            catch (TypeInitializationException e)
+            {
+                if (e.InnerException != null
+                    && e.InnerException.GetType() == typeof(DllNotFoundException)
+                    && e.InnerException.Message.Contains("libgdiplus"))
+                {
+                    throw new MissingDependencyException(
+                        "It looks like libgdiplus has not been installed - see" +
+                        " https://github.com/codebude/QRCoder/issues/227",
+                        e);
+                }
+            }
+            catch (System.Runtime.InteropServices.ExternalException e)
+            {
+                if (e.Message.Contains("GDI+") && qrPixelsPerModule > 10)
+                {
+                    throw new QRException(
+                        $"There was a problem generating a QR code. The value of {nameof(qrPixelsPerModule)}" +
+                        " should be set to a value of 10 or less for optimal results.",
+                        e);
+                }
+            }
+
+            return qrCodeUrl;
         }
+
+        private static string RemoveWhitespace(string str) =>
+            new string(str.Where(c => !char.IsWhiteSpace(c)).ToArray());
 
         private string UrlEncode(string value)
         {
-            StringBuilder result = new StringBuilder();
-            string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
+            var result = new StringBuilder();
+            var validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
 
-            foreach (char symbol in value)
+            foreach (var symbol in value)
             {
-                if (validChars.IndexOf(symbol) != -1)
+                if (validChars.IndexOf(symbol) == -1)
                 {
-                    result.Append(symbol);
+                    result.AppendFormat("%{0:X2}", (int) symbol);
                 }
                 else
                 {
-                    result.Append('%' + String.Format("{0:X2}", (int)symbol));
+                    result.Append(symbol);
                 }
             }
 
-            return result.ToString().Replace(" ", "%20");
+            return result.Replace(" ", "%20").ToString();
         }
 
-        public string GeneratePINAtInterval(string accountSecretKey, long counter, int digits = 6)
+        public string GeneratePINAtInterval(
+            string accountSecretKey,
+            long counter,
+            int digits = 6,
+            bool secretIsBase32 = false)
         {
-            return GenerateHashedCode(accountSecretKey, counter, digits);
+            return GenerateHashedCode(accountSecretKey, counter, secretIsBase32, digits);
         }
 
-        internal string GenerateHashedCode(string secret, long iterationNumber, int digits = 6)
+        private string GenerateHashedCode(string secret,
+            long iterationNumber,
+            bool secretIsBase32,
+            int digits = 6)
         {
-            byte[] key = Encoding.UTF8.GetBytes(secret);
-            return GenerateHashedCode(key, iterationNumber, digits);
+            return GenerateHashedCode(
+                secretIsBase32 ? Base32Encoding.ToBytes(secret) : Encoding.UTF8.GetBytes(secret),
+                iterationNumber,
+                digits);
         }
 
-        internal string GenerateHashedCode(byte[] key, long iterationNumber, int digits = 6)
+        private string GenerateHashedCode(byte[] key, long iterationNumber, int digits = 6)
         {
-            byte[] counter = BitConverter.GetBytes(iterationNumber);
+            var counter = BitConverter.GetBytes(iterationNumber);
 
             if (BitConverter.IsLittleEndian)
-            {
                 Array.Reverse(counter);
-            }
 
-            HMACSHA1 hmac = new HMACSHA1(key);
-
-            byte[] hash = hmac.ComputeHash(counter);
-
-            int offset = hash[hash.Length - 1] & 0xf;
+            var hmac = new HMACSHA1(key);
+            var hash = hmac.ComputeHash(counter);
+            var offset = hash[hash.Length - 1] & 0xf;
 
             // Convert the 4 bytes into an integer, ignoring the sign.
-            int binary =
+            var binary =
                 ((hash[offset] & 0x7f) << 24)
                 | (hash[offset + 1] << 16)
                 | (hash[offset + 2] << 8)
-                | (hash[offset + 3]);
+                | hash[offset + 3];
 
-            int password = binary % (int)Math.Pow(10, digits);
+            var password = binary % (int) Math.Pow(10, digits);
             return password.ToString(new string('0', digits));
         }
 
-        private long GetCurrentCounter()
+        private long GetCurrentCounter() => GetCurrentCounter(DateTime.UtcNow, _epoch, 30);
+
+        private long GetCurrentCounter(DateTime now, DateTime epoch, int timeStep) =>
+            (long) (now - epoch).TotalSeconds / timeStep;
+
+        public bool ValidateTwoFactorPIN(
+            string accountSecretKey,
+            string twoFactorCodeFromClient,
+            bool secretIsBase32 = false)
         {
-            return GetCurrentCounter(DateTime.UtcNow, _epoch, 30);
+            return ValidateTwoFactorPIN(accountSecretKey, twoFactorCodeFromClient, DefaultClockDriftTolerance,
+                secretIsBase32);
         }
 
-        private long GetCurrentCounter(DateTime now, DateTime epoch, int timeStep)
+        public bool ValidateTwoFactorPIN(
+            string accountSecretKey,
+            string twoFactorCodeFromClient,
+            TimeSpan timeTolerance,
+            bool secretIsBase32 = false)
         {
-            return (long)(now - epoch).TotalSeconds / timeStep;
+            return GetCurrentPINs(accountSecretKey, timeTolerance, secretIsBase32)
+                .Any(c => c == twoFactorCodeFromClient);
         }
 
-        public bool ValidateTwoFactorPIN(string accountSecretKey, string twoFactorCodeFromClient)
-        {
-            return ValidateTwoFactorPIN(accountSecretKey, twoFactorCodeFromClient, DefaultClockDriftTolerance);
-        }
+        public string GetCurrentPIN(string accountSecretKey, bool secretIsBase32 = false) =>
+            GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(), secretIsBase32: secretIsBase32);
 
-        public bool ValidateTwoFactorPIN(string accountSecretKey, string twoFactorCodeFromClient, TimeSpan timeTolerance)
-        {
-            var codes = GetCurrentPINs(accountSecretKey, timeTolerance);
-            return codes.Any(c => c == twoFactorCodeFromClient);
-        }
+        public string GetCurrentPIN(string accountSecretKey, DateTime now, bool secretIsBase32 = false) =>
+            GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(now, _epoch, 30));
 
-        public string GetCurrentPIN(string accountSecretKey)
-        {
-            return GeneratePINAtInterval(accountSecretKey, GetCurrentCounter());
-        }
+        public string[] GetCurrentPINs(string accountSecretKey, bool secretIsBase32 = false) =>
+            GetCurrentPINs(accountSecretKey, DefaultClockDriftTolerance, secretIsBase32);
 
-        public string GetCurrentPIN(string accountSecretKey, DateTime now)
+        public string[] GetCurrentPINs(string accountSecretKey, TimeSpan timeTolerance, bool secretIsBase32 = false)
         {
-            return GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(now, _epoch, 30));
-        }
-
-        public string[] GetCurrentPINs(string accountSecretKey)
-        {
-            return GetCurrentPINs(accountSecretKey, DefaultClockDriftTolerance);
-        }
-
-        public string[] GetCurrentPINs(string accountSecretKey, TimeSpan timeTolerance)
-        {
-            List<string> codes = new List<string>();
-            long iterationCounter = GetCurrentCounter();
-            int iterationOffset = 0;
+            var codes = new List<string>();
+            var iterationCounter = GetCurrentCounter();
+            var iterationOffset = 0;
 
             if (timeTolerance.TotalSeconds > 30)
             {
                 iterationOffset = Convert.ToInt32(timeTolerance.TotalSeconds / 30.00);
             }
 
-            long iterationStart = iterationCounter - iterationOffset;
-            long iterationEnd = iterationCounter + iterationOffset;
+            var iterationStart = iterationCounter - iterationOffset;
+            var iterationEnd = iterationCounter + iterationOffset;
 
-            for (long counter = iterationStart; counter <= iterationEnd; counter++)
+            for (var counter = iterationStart; counter <= iterationEnd; counter++)
             {
-                codes.Add(GeneratePINAtInterval(accountSecretKey, counter));
+                codes.Add(GeneratePINAtInterval(accountSecretKey, counter, secretIsBase32: secretIsBase32));
             }
 
             return codes.ToArray();
