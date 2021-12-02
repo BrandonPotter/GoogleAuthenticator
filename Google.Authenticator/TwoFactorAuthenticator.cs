@@ -35,19 +35,8 @@ namespace Google.Authenticator
         /// <param name="qrPixelsPerModule">Number of pixels per QR Module (2 pixels give ~ 100x100px QRCode,
         /// should be 10 or less)</param>
         /// <returns>SetupCode object</returns>
-        public SetupCode GenerateSetupCode(
-            string issuer,
-            string accountTitleNoSpaces,
-            string accountSecretKey,
-            bool secretIsBase32,
-            int qrPixelsPerModule = 3)
-        {
-            var key = secretIsBase32
-                ? Base32Encoding.ToBytes(accountSecretKey)
-                : Encoding.UTF8.GetBytes(accountSecretKey);
-
-            return GenerateSetupCode(issuer, accountTitleNoSpaces, key, qrPixelsPerModule);
-        }
+        public SetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces, string accountSecretKey, bool secretIsBase32, int qrPixelsPerModule = 3) =>
+            GenerateSetupCode(issuer, accountTitleNoSpaces, ConvertSecretToBytes(accountSecretKey, secretIsBase32), qrPixelsPerModule);
 
         /// <summary>
         /// Generate a setup code for a Google Authenticator user to scan
@@ -60,8 +49,7 @@ namespace Google.Authenticator
         /// (2 = ~120x120px QRCode, should be 10 or less)</param>
         /// <param name="generateQrCode"></param>
         /// <returns>SetupCode object</returns>
-        public SetupCode GenerateSetupCode(
-            string issuer,
+        public SetupCode GenerateSetupCode(string issuer,
             string accountTitleNoSpaces,
             byte[] accountSecretKey,
             int qrPixelsPerModule = 3,
@@ -152,25 +140,26 @@ namespace Google.Authenticator
             return result.Replace(" ", "%20").ToString();
         }
 
-        public string GeneratePINAtInterval(
-            string accountSecretKey,
-            long counter,
-            int digits = 6,
-            bool secretIsBase32 = false)
-        {
-            return GenerateHashedCode(accountSecretKey, counter, secretIsBase32, digits);
-        }
+        /// <summary>
+        /// This method is generally called via <see cref="GoogleAuthenticator.GetCurrentPIN()" />/>
+        /// </summary>
+        /// <param name="accountSecretKey">The acount secret key as a string</param>
+        /// <param name="counter">The number of 30-second (by default) intervals since the unix epoch</param>
+        /// <param name="digits">The desired length of the returned PIN</param>
+        /// <param name="secretIsBase32">Flag saying if accountSecretKey is in Base32 format or original secret</param>
+        /// <returns>A 'PIN' that is valid for the specified time interval</returns>
+        public string GeneratePINAtInterval(string accountSecretKey, long counter, int digits = 6, bool secretIsBase32 = false) =>
+            GeneratePINAtInterval(ConvertSecretToBytes(accountSecretKey, secretIsBase32), counter, digits);
 
-        private string GenerateHashedCode(string secret,
-            long iterationNumber,
-            bool secretIsBase32,
-            int digits = 6)
-        {
-            return GenerateHashedCode(
-                secretIsBase32 ? Base32Encoding.ToBytes(secret) : Encoding.UTF8.GetBytes(secret),
-                iterationNumber,
-                digits);
-        }
+        /// <summary>
+        /// This method is generally called via <see cref="GoogleAuthenticator.GetCurrentPIN()" />/>
+        /// </summary>
+        /// <param name="accountSecretKey">The acount secret key as a byte array</param>
+        /// <param name="counter">The number of 30-second (by default) intervals since the unix epoch</param>
+        /// <param name="digits">The desired length of the returned PIN</param>
+        /// <returns>A 'PIN' that is valid for the specified time interval</returns>
+        public string GeneratePINAtInterval(byte[] accountSecretKey, long counter, int digits = 6) =>
+            GenerateHashedCode(accountSecretKey, counter, digits);
 
         private string GenerateHashedCode(byte[] key, long iterationNumber, int digits = 6)
         {
@@ -199,35 +188,122 @@ namespace Google.Authenticator
         private long GetCurrentCounter(DateTime now, DateTime epoch, int timeStep) =>
             (long) (now - epoch).TotalSeconds / timeStep;
 
-        public bool ValidateTwoFactorPIN(
-            string accountSecretKey,
-            string twoFactorCodeFromClient,
-            bool secretIsBase32 = false)
+        /// <summary>
+        /// Given a PIN from a client, check if it is valid at the current time.
+        /// </summary>
+        /// <param name="accountSecretKey">Account Secret Key</param>
+        /// <param name="twoFactorCodeFromClient">The PIN from the client</param>
+        /// <param name="secretIsBase32">Flag saying if accountSecretKey is in Base32 format or original secret</param>
+        /// <returns>True if PIN is currently valid</returns>
+        public bool ValidateTwoFactorPIN(string accountSecretKey, string twoFactorCodeFromClient, bool secretIsBase32 = false) =>
+            ValidateTwoFactorPIN(accountSecretKey, twoFactorCodeFromClient, DefaultClockDriftTolerance, secretIsBase32);
+
+        /// <summary>
+        /// Given a PIN from a client, check if it is valid at the current time.
+        /// </summary>
+        /// <param name="accountSecretKey">Account Secret Key</param>
+        /// <param name="twoFactorCodeFromClient">The PIN from the client</param>
+        /// <param name="timeTolerance">The time window within which to check to allow for clock drift between devices.</param>
+        /// <param name="secretIsBase32">Flag saying if accountSecretKey is in Base32 format or original secret</param>
+        /// <returns>True if PIN is currently valid</returns>
+        public bool ValidateTwoFactorPIN(string accountSecretKey, string twoFactorCodeFromClient, TimeSpan timeTolerance, bool secretIsBase32 = false) =>
+            ValidateTwoFactorPIN(ConvertSecretToBytes(accountSecretKey, secretIsBase32), twoFactorCodeFromClient, timeTolerance);
+
+        /// <summary>
+        /// Given a PIN from a client, check if it is valid at the current time.
+        /// </summary>
+        /// <param name="accountSecretKey">Account Secret Key</param>
+        /// <param name="twoFactorCodeFromClient">The PIN from the client</param>
+        /// <returns>True if PIN is currently valid</returns>
+        public bool ValidateTwoFactorPIN(byte[] accountSecretKey, string twoFactorCodeFromClient) =>
+            ValidateTwoFactorPIN(accountSecretKey, twoFactorCodeFromClient, DefaultClockDriftTolerance);
+
+        /// <summary>
+        /// Given a PIN from a client, check if it is valid at the current time.
+        /// </summary>
+        /// <param name="accountSecretKey">Account Secret Key</param>
+        /// <param name="twoFactorCodeFromClient">The PIN from the client</param>
+        /// <param name="timeTolerance">The time window within which to check to allow for clock drift between devices.</param>
+        /// <returns>True if PIN is currently valid</returns>
+        public bool ValidateTwoFactorPIN(byte[] accountSecretKey, string twoFactorCodeFromClient, TimeSpan timeTolerance)
         {
-            return ValidateTwoFactorPIN(accountSecretKey, twoFactorCodeFromClient, DefaultClockDriftTolerance,
-                secretIsBase32);
+            return GetCurrentPINs(accountSecretKey, timeTolerance).Any(c => c == twoFactorCodeFromClient);
         }
 
-        public bool ValidateTwoFactorPIN(
-            string accountSecretKey,
-            string twoFactorCodeFromClient,
-            TimeSpan timeTolerance,
-            bool secretIsBase32 = false)
-        {
-            return GetCurrentPINs(accountSecretKey, timeTolerance, secretIsBase32)
-                .Any(c => c == twoFactorCodeFromClient);
-        }
-
+        /// <summary>
+        /// Get the PIN for current time; the same code that a 2FA app would generate for the current time.
+        /// Do not validate directly against this as clockdrift may cause a a different PIN to be generated than one you did a second ago.
+        /// </summary>
+        /// <param name="accountSecretKey">Account Secret Key</param>
+        /// <param name="secretIsBase32">Flag saying if accountSecretKey is in Base32 format or original secret</param>
+        /// <returns>A 6-digit PIN</returns>
         public string GetCurrentPIN(string accountSecretKey, bool secretIsBase32 = false) =>
             GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(), secretIsBase32: secretIsBase32);
 
+        /// <summary>
+        /// Get the PIN for current time; the same code that a 2FA app would generate for the current time.
+        /// Do not validate directly against this as clockdrift may cause a a different PIN to be generated than one you did a second ago.
+        /// </summary>
+        /// <param name="accountSecretKey">Account Secret Key</param>
+        /// <param name="now">The time you wish to generate the pin for</param>
+        /// <param name="secretIsBase32">Flag saying if accountSecretKey is in Base32 format or original secret</param>
+        /// <returns>A 6-digit PIN</returns>
         public string GetCurrentPIN(string accountSecretKey, DateTime now, bool secretIsBase32 = false) =>
+            GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(now, _epoch, 30), secretIsBase32: secretIsBase32);
+
+        /// <summary>
+        /// Get the PIN for current time; the same code that a 2FA app would generate for the current time.
+        /// Do not validate directly against this as clockdrift may cause a a different PIN to be generated.
+        /// </summary>
+        /// <param name="accountSecretKey">Account Secret Key</param>
+        /// <returns>A 6-digit PIN</returns>
+        public string GetCurrentPIN(byte[] accountSecretKey) =>
+            GeneratePINAtInterval(accountSecretKey, GetCurrentCounter());
+
+        /// <summary>
+        /// Get the PIN for current time; the same code that a 2FA app would generate for the current time.
+        /// Do not validate directly against this as clockdrift may cause a a different PIN to be generated.
+        /// </summary>
+        /// <param name="accountSecretKey">Account Secret Key</param>
+        /// <param name="now">The time you wish to generate the pin for</param>
+        /// <returns>A 6-digit PIN</returns>
+        public string GetCurrentPIN(byte[] accountSecretKey, DateTime now) =>
             GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(now, _epoch, 30));
 
+        /// <summary>
+        /// Get all the PINs that would be valid within the time window allowed for by the default clock drift.
+        /// </summary>
+        /// <param name="accountSecretKey">Account Secret Key</param>
+        /// <param name="secretIsBase32">Flag saying if accountSecretKey is in Base32 format or original secret</param>
+        /// <returns></returns>
         public string[] GetCurrentPINs(string accountSecretKey, bool secretIsBase32 = false) =>
             GetCurrentPINs(accountSecretKey, DefaultClockDriftTolerance, secretIsBase32);
 
-        public string[] GetCurrentPINs(string accountSecretKey, TimeSpan timeTolerance, bool secretIsBase32 = false)
+        /// <summary>
+        /// Get all the PINs that would be valid within the time window allowed for by the specified clock drift.
+        /// </summary>
+        /// <param name="accountSecretKey">Account Secret Key</param>
+        /// <param name="timeTolerance">The clock drift size you want to generate PINs for</param>
+        /// <param name="secretIsBase32">Flag saying if accountSecretKey is in Base32 format or original secret</param>
+        /// <returns></returns>
+        public string[] GetCurrentPINs(string accountSecretKey, TimeSpan timeTolerance, bool secretIsBase32 = false) =>
+            GetCurrentPINs(ConvertSecretToBytes(accountSecretKey, secretIsBase32), timeTolerance);
+
+        /// <summary>
+        /// Get all the PINs that would be valid within the time window allowed for by the default clock drift.
+        /// </summary>
+        /// <param name="accountSecretKey">Account Secret Key</param>
+        /// <returns></returns>
+        public string[] GetCurrentPINs(byte[] accountSecretKey) =>
+            GetCurrentPINs(accountSecretKey, DefaultClockDriftTolerance);
+
+        /// <summary>
+        /// Get all the PINs that would be valid within the time window allowed for by the specified clock drift.
+        /// </summary>
+        /// <param name="accountSecretKey">Account Secret Key</param>
+        /// <param name="timeTolerance">The clock drift size you want to generate PINs for</param>
+        /// <returns></returns>
+        public string[] GetCurrentPINs(byte[] accountSecretKey, TimeSpan timeTolerance)
         {
             var codes = new List<string>();
             var iterationCounter = GetCurrentCounter();
@@ -243,10 +319,13 @@ namespace Google.Authenticator
 
             for (var counter = iterationStart; counter <= iterationEnd; counter++)
             {
-                codes.Add(GeneratePINAtInterval(accountSecretKey, counter, secretIsBase32: secretIsBase32));
+                codes.Add(GeneratePINAtInterval(accountSecretKey, counter));
             }
 
             return codes.ToArray();
         }
+
+        private static byte[] ConvertSecretToBytes(string secret, bool secretIsBase32) =>
+            secretIsBase32 ? Base32Encoding.ToBytes(secret) : Encoding.UTF8.GetBytes(secret);
     }
 }
