@@ -102,6 +102,10 @@ namespace Google.Authenticator
                         " https://github.com/codebude/QRCoder/issues/227",
                         e);
                 }
+                else
+                {
+                    throw;
+                }
             }
             catch (System.Runtime.InteropServices.ExternalException e)
             {
@@ -111,6 +115,10 @@ namespace Google.Authenticator
                         $"There was a problem generating a QR code. The value of {nameof(qrPixelsPerModule)}" +
                         " should be set to a value of 10 or less for optimal results.",
                         e);
+                }
+                else
+                {
+                    throw;
                 }
             }
 
