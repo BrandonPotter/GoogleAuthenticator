@@ -122,22 +122,7 @@ namespace Google.Authenticator
 
         private string UrlEncode(string value)
         {
-            var result = new StringBuilder();
-            var validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
-
-            foreach (var symbol in value)
-            {
-                if (validChars.IndexOf(symbol) == -1)
-                {
-                    result.AppendFormat("%{0:X2}", (int) symbol);
-                }
-                else
-                {
-                    result.Append(symbol);
-                }
-            }
-
-            return result.Replace(" ", "%20").ToString();
+            return Uri.EscapeDataString(value);
         }
 
         /// <summary>
