@@ -35,19 +35,26 @@ namespace Google.Authenticator.Tests
             var rawImageData = qrCodeSetupImageUrl.Substring(headerLength, qrCodeSetupImageUrl.Length - headerLength);
             var imageData = Convert.FromBase64String(rawImageData);
 
+            //var reader = new BarcodeReaderGeneric();
+            //reader.Options.PossibleFormats = new List<BarcodeFormat> {
+            //    BarcodeFormat.QR_CODE
+            //};
+
+#if NETFRAMEWORK
             var reader = new BarcodeReader();
             reader.Options.PossibleFormats = new List<BarcodeFormat> {
                 BarcodeFormat.QR_CODE
             };
-
-#if NETFRAMEWORK
             using (var ms = new MemoryStream(imageData))
             {
                 var image = new System.Drawing.Bitmap(ms);
                 return reader.Decode(image).Text;
             }
-            
 #else
+            var reader = new BarcodeReaderGeneric();
+            reader.Options.PossibleFormats = new List<BarcodeFormat> {
+                BarcodeFormat.QR_CODE
+            };
             var image = new ImageMagick.MagickImage(imageData);
             var wrappedImage = new ZXing.Magick.MagickImageLuminanceSource(image);
             return reader.Decode(wrappedImage).Text;
