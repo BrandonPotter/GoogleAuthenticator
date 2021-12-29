@@ -21,7 +21,7 @@
     <PackageReference Include="ZXing.Net" Version="0.16.7" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' != 'net452'">
-    <PackageReference Include="ZXing.Net.Bindings.Magick" Version="0.16.8" />
+    <PackageReference Include="ZXing.Net.Bindings.Magick" Version="0.16.9" />
   </ItemGroup>    
   <ItemGroup>
     <ProjectReference Include="..\Google.Authenticator\Google.Authenticator.csproj" />
