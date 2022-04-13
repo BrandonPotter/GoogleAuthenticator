@@ -34,6 +34,12 @@ TwoFactorAuthenticator tfa = new TwoFactorAuthenticator();
 bool result = tfa.ValidateTwoFactorPIN(key, txtCode.Text)
 ```
 
+## Updates
+
+### 2.5.0
+Now runs on .Net 6.0.  
+Technically the QR Coder library we rely on still does not fully support .Net 6.0 so it is possible there will be other niggling issues, but for now all tests pass for .Net 6.0 on both Windows and Linux.
+
 ## Common Pitfalls
 
 * Old documentation indicated specifying width and height for the QR code, but changes in QR generation now uses pixels per module (QR "pixel") so using a value too high will result in a huge image that can overrun memory allocations
