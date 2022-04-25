@@ -9,16 +9,18 @@ namespace Google.Authenticator
 {
     internal class QRCodeGenerator
     {
-        private const int _SKIA_CANVAS_SIZE = 171;
-
         private static readonly string[] _SKIA_QR_TYPES = new string[] { "SkiaSharp.QrCode.QRCodeGenerator", "SkiaSharp.QrCode.QRCodeGenerator+EciMode", "SkiaSharp.QrCode.ECCLevel", "SkiaSharp.QrCode.QRCodeData", "SkiaSharp.QrCode.QRCodeRenderer" };
-        private static readonly string[] _SKIA_TYPES = new string[] { "SkiaSharp.SKImageInfo", "SkiaSharp.SKSurface", "SkiaSharp.SKCanvas", "SkiaSharp.SKColor", "SkiaSharp.SKRect", "SkiaSharp.SKEncodedImageFormat" };
+        private static readonly string[] _SKIA_TYPES = new string[] { "SkiaSharp.SKBitmap", "SkiaSharp.SKCanvas", "SkiaSharp.SKColor", "SkiaSharp.SKRect", "SkiaSharp.SKEncodedImageFormat", "SkiaSharp.SKPaint" };
         private static readonly string[] _QRCODER_TYPES = new string[] { "QRCoder.QRCodeGenerator", "QRCoder.QRCodeGenerator+ECCLevel", "QRCoder.QRCode", "QRCoder.QRCodeData" };
         private static readonly string[] _DRAWING_IMAGE_TYPES = new string[] { "System.Drawing.Imaging.ImageFormat" };
 
         private static Dictionary<string, Type> _objectTypes;
         private static bool _CAN_USE_SKIA = true;
         private static bool _CAN_USE_QRCODER = true;
+        private static object _SKIA_BLACK = null;
+        private static object _SKIA_WHITE = null;
+
+        private static readonly decimal _QR_CODE_RATIO = ((decimal)4629*(decimal)21)/((decimal)177*(decimal)177);
 
         static QRCodeGenerator()
         {
@@ -113,6 +115,11 @@ namespace Google.Authenticator
                     }
                 }
             }
+            if (_CAN_USE_SKIA)
+            {
+                _SKIA_BLACK = _objectTypes["SkiaSharp.SKColor"].GetConstructor(new Type[] { typeof(byte), typeof(byte), typeof(byte) }).Invoke(new object[] { (byte)0, (byte)0, (byte)0 });
+                _SKIA_WHITE = _objectTypes["SkiaSharp.SKColor"].GetConstructor(new Type[] { typeof(byte), typeof(byte), typeof(byte) }).Invoke(new object[] { (byte)255, (byte)255, (byte)255 });
+            }
         }
 
         public static string GenerateQrCodeUrl(int qrPixelsPerModule, string provisionUrl)
@@ -133,19 +140,23 @@ namespace Google.Authenticator
                     {
                         if (_CAN_USE_SKIA)
                         {
-                            using (var surface = (IDisposable)_InvokeMethod(_objectTypes["SkiaSharp.SKSurface"],null,"Create", new Dictionary<string, object> { { "info", _objectTypes["SkiaSharp.SKImageInfo"].GetConstructor(new Type[] { typeof(int), typeof(int) }).Invoke(new object[] { _SKIA_CANVAS_SIZE, _SKIA_CANVAS_SIZE }) } }))
+                            int CanvasSize = (int)Math.Ceiling((decimal)provisionUrl.Length*_QR_CODE_RATIO);
+                            using (var img = (IDisposable)_objectTypes["SkiaSharp.SKBitmap"].GetConstructor(new Type[] { typeof(int), typeof(int), typeof(bool) }).Invoke(new object[] { CanvasSize, CanvasSize, false }))
                             using (var renderer = (IDisposable)_objectTypes["SkiaSharp.QrCode.QRCodeRenderer"].GetConstructor(Type.EmptyTypes).Invoke(new object[] { }))
+                            using (var canvas = (IDisposable)_objectTypes["SkiaSharp.SKCanvas"].GetConstructor(new Type[] { _objectTypes["SkiaSharp.SKBitmap"] }).Invoke(new Object[] { img }))
                             {
+                                _InvokeMethod(canvas.GetType(), canvas, "Clear", new Dictionary<string, object>() {});
+                                _InvokeMethod(canvas.GetType(), canvas, "Clear", new Dictionary<string, object>() { {"color", _SKIA_WHITE } });
                                 _InvokeMethod(_objectTypes["SkiaSharp.QrCode.QRCodeRenderer"], renderer, "Render", new Dictionary<string, object>()
                                 {
-                                    {"canvas", _objectTypes["SkiaSharp.SKSurface"].GetProperty("Canvas").GetValue(surface)},
-                                    {"area", _objectTypes["SkiaSharp.SKRect"].GetConstructor(new Type[]{typeof(float),typeof(float),typeof(float),typeof(float)}).Invoke(new object[]{0f,0f,(float)_SKIA_CANVAS_SIZE,(float)_SKIA_CANVAS_SIZE})},
+                                    {"canvas", canvas},
+                                    {"area", _objectTypes["SkiaSharp.SKRect"].GetConstructor(new Type[]{typeof(float),typeof(float),typeof(float),typeof(float)}).Invoke(new object[]{0f,0f,(float)CanvasSize, (float)CanvasSize})},
                                     {"data",qrCodeData },
-                                    {"qrColor",null }
+                                    {"qrColor",_SKIA_BLACK }
                                 });
-                                var img = _InvokeMethod(_objectTypes["SkiaSharp.SKSurface"], surface, "Snapshot", new Dictionary<string, object>() { });
-                                var imgData = _InvokeMethod(img.GetType(),img,"Encode",new Dictionary<string, object>(){
-                                    {"format",Enum.Parse(_objectTypes["SkiaSharp.SKEncodedImageFormat"], "Png") },
+                                _InvokeMethod(canvas.GetType(), canvas, "Flush", new Dictionary<string, object>() { });
+                                var imgData = _InvokeMethod(img.GetType(), img, "Encode", new Dictionary<string, object>(){
+                                    {"format",Enum.Parse(_objectTypes["SkiaSharp.SKEncodedImageFormat"], "Jpeg") },
                                     {"quality",100 }
                                 });
                                 imgData.GetType().GetMethod("SaveTo", new Type[] { typeof(Stream) }).Invoke(imgData, new object[] { ms });
@@ -165,7 +176,7 @@ namespace Google.Authenticator
                                 });
                             }
                         }
-                        qrCodeUrl = $"data:image/png;base64,{Convert.ToBase64String(ms.ToArray())}";
+                        qrCodeUrl = $"data:image/{(_CAN_USE_SKIA ? "jpeg" :"png")};base64,{Convert.ToBase64String(ms.ToArray())}";
                     }
                     qrCodeData.Dispose();
                 }
