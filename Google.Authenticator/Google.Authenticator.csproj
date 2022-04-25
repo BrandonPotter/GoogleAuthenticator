@@ -1,13 +1,13 @@
 ﻿
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net5.0;netcoreapp3.1;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net45;net5.0;net6.0</TargetFrameworks>
     <Product>Google Authenticator Two-Factor</Product>
     <Title>Google Authenticator Two-Factor Authentication Library</Title>
     <Description>Google Authenticator Two-Factor Authentication Library (Not officially affiliated with Google.)</Description>
     <Authors>Brandon Potter</Authors>
     <Company>Brandon Potter</Company>
-    <Version>2.4.0</Version>
+    <Version>2.5.0</Version>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/BrandonPotter/GoogleAuthenticator</PackageProjectUrl>
     <PackageId>GoogleAuthenticator</PackageId>
@@ -15,8 +15,9 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <PackageReference Include="QRCoder" Version="1.4.3" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
   
   <ItemGroup>
@@ -33,6 +34,9 @@
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net5'">
     <DefineConstants>NET5_0;NETCOREAPP</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6'">
+    <DefineConstants>NET6_0;</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
