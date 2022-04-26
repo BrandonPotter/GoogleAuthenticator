@@ -9,9 +9,13 @@ namespace Google.Authenticator
 {
     internal class QRCodeGenerator
     {
-        private static readonly string[] _SKIA_QR_TYPES = new string[] { "SkiaSharp.QrCode.QRCodeGenerator", "SkiaSharp.QrCode.QRCodeGenerator+EciMode", "SkiaSharp.QrCode.ECCLevel", "SkiaSharp.QrCode.QRCodeData", "SkiaSharp.QrCode.QRCodeRenderer" };
+        private static readonly string[] _SKIA_QR_TYPES = new string[] { "SkiaSharp.QrCode.QRCodeGenerator", "SkiaSharp.QrCode.QRCodeGenerator+EciMode", "SkiaSharp.QrCode.ECCLevel", "SkiaSharp.QrCode.QRCodeData", "SkiaSharp.QrCode.QRCodeRenderer"};
         private static readonly string[] _SKIA_TYPES = new string[] { "SkiaSharp.SKBitmap", "SkiaSharp.SKCanvas", "SkiaSharp.SKColor", "SkiaSharp.SKRect", "SkiaSharp.SKEncodedImageFormat", "SkiaSharp.SKPaint" };
-        private static readonly string[] _QRCODER_TYPES = new string[] { "QRCoder.QRCodeGenerator", "QRCoder.QRCodeGenerator+ECCLevel", "QRCoder.QRCode", "QRCoder.QRCodeData" };
+        private static readonly string[] _QRCODER_TYPES = new string[] { "QRCoder.QRCodeGenerator", "QRCoder.QRCodeGenerator+ECCLevel", "QRCoder.QRCode", "QRCoder.QRCodeData"
+#if NET6_0
+            ,"QRCoder.PngByteQRCode"
+#endif
+        };
         private static readonly string[] _DRAWING_IMAGE_TYPES = new string[] { "System.Drawing.Imaging.ImageFormat" };
 
         private static Dictionary<string, Type> _objectTypes;
@@ -51,7 +55,12 @@ namespace Google.Authenticator
             }
             try
             {
+#if NET45
+                ass = Assembly.Load(@"System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
+#else
                 ass = Assembly.Load("System.Drawing.Common");
+#endif
+
             }
             catch (Exception e)
             {
@@ -164,6 +173,15 @@ namespace Google.Authenticator
                         }
                         else
                         {
+#if NET6_0
+                            using (var qrCode = (IDisposable)_objectTypes["QRCoder.PngByteQRCode"].GetConstructor(new Type[]{_objectTypes["QRCoder.QRCodeData"]}).Invoke(new object[]{qrCodeData}))
+                            {
+                                var data = (byte[])_InvokeMethod(qrCode.GetType(),qrCode,"GetGraphic",new Dictionary<string, object>(){
+                                    {"pixelsPerModule",qrPixelsPerModule}
+                                });
+                                ms.Write(data,0,data.Length);
+                            }
+#else
                             using (var qrCode = (IDisposable)_objectTypes["QRCoder.QRCode"].GetConstructor(new Type[] { _objectTypes["QRCoder.QRCodeData"] }).Invoke(new object[] { qrCodeData }))
                             using (var qrCodeImage = (IDisposable)_InvokeMethod(_objectTypes["QRCoder.QRCode"], qrCode, "GetGraphic", new Dictionary<string, object>(){
                                 {"pixelsPerModule", qrPixelsPerModule }
@@ -175,6 +193,7 @@ namespace Google.Authenticator
                                     {"format", _objectTypes["System.Drawing.Imaging.ImageFormat"].GetProperty("Png").GetValue(null)}
                                 });
                             }
+#endif
                         }
                         qrCodeUrl = $"data:image/{(_CAN_USE_SKIA ? "jpeg" :"png")};base64,{Convert.ToBase64String(ms.ToArray())}";
                     }

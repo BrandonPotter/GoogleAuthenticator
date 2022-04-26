@@ -1,5 +1,4 @@
-﻿using QRCoder;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -79,64 +78,7 @@ namespace Google.Authenticator
             return new SetupCode(
                 accountTitleNoSpaces,
                 encodedSecretKey.Trim('='),
-                generateQrCode ? GenerateQrCodeUrl(qrPixelsPerModule, provisionUrl) : "");
-        }
-
-        private static string GenerateQrCodeUrl(int qrPixelsPerModule, string provisionUrl)
-        {
-            var qrCodeUrl = "";
-            try
-            {
-                using (var qrGenerator = new QRCodeGenerator())
-                using (var qrCodeData = qrGenerator.CreateQrCode(provisionUrl, QRCodeGenerator.ECCLevel.Q))
-                #if NET6_0
-                    using (var qrCode = new PngByteQRCode(qrCodeData))
-                    {
-                        var qrCodeImage = qrCode.GetGraphic(qrPixelsPerModule);
-                        qrCodeUrl = $"data:image/png;base64,{Convert.ToBase64String(qrCodeImage)}";
-                    }
-                #else
-                    using (var qrCode = new QRCode(qrCodeData))
-                    using (var qrCodeImage = qrCode.GetGraphic(qrPixelsPerModule))
-                    using (var ms = new MemoryStream())
-                    {
-                        qrCodeImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                        qrCodeUrl = $"data:image/png;base64,{Convert.ToBase64String(ms.ToArray())}";
-                    }
-                #endif
-            }
-            catch (TypeInitializationException e)
-            {
-                if (e.InnerException != null
-                    && e.InnerException.GetType() == typeof(DllNotFoundException)
-                    && e.InnerException.Message.Contains("libgdiplus"))
-                {
-                    throw new MissingDependencyException(
-                        "It looks like libgdiplus has not been installed - see" +
-                        " https://github.com/codebude/QRCoder/issues/227",
-                        e);
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            catch (System.Runtime.InteropServices.ExternalException e)
-            {
-                if (e.Message.Contains("GDI+") && qrPixelsPerModule > 10)
-                {
-                    throw new QRException(
-                        $"There was a problem generating a QR code. The value of {nameof(qrPixelsPerModule)}" +
-                        " should be set to a value of 10 or less for optimal results.",
-                        e);
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return qrCodeUrl;
+                generateQrCode ? QRCodeGenerator.GenerateQrCodeUrl(qrPixelsPerModule, provisionUrl) : "");
         }
 
         private static string RemoveWhitespace(string str) =>
