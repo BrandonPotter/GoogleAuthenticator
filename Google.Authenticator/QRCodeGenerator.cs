@@ -55,7 +55,7 @@ namespace Google.Authenticator
             }
             try
             {
-#if NET45
+#if NET462
                 ass = Assembly.Load(@"System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
 #else
                 ass = Assembly.Load("System.Drawing.Common");

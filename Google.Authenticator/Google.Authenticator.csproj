@@ -1,16 +1,19 @@
 ﻿
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net452;net5.0;net6.0</TargetFrameworks>
-    <Product>Google Authenticator Two-Factor</Product>
+    <TargetFrameworks>netstandard2.1;netcoreapp3.1;net462;net6.0</TargetFrameworks>
+    <Product>Google Authenticator Two-Factor (Mutliple QRCoder)</Product>
     <Title>Google Authenticator Two-Factor Authentication Library</Title>
-    <Description>Google Authenticator Two-Factor Authentication Library (Not officially affiliated with Google.)</Description>
-    <Authors>Brandon Potter</Authors>
-    <Company>Brandon Potter</Company>
+    <Description>Fork of Google Authenticator Two-Factor Authentication Library (Not officially affiliated with Google.)  This branch supposrts using different qrcode generators.
+You must either include a reference to QRCoder or SkiaSharp.QrCode in order to generate a qrcode image.</Description>
+    <Authors>Roger Castaldo,Brandon Potter</Authors>
+    <Company>Roger Castaldo,Brandon Potter</Company>
     <Version>2.5.0</Version>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/BrandonPotter/GoogleAuthenticator</PackageProjectUrl>
-    <PackageId>GoogleAuthenticator</PackageId>
+    <PackageProjectUrl>https://github.com/roger-castaldo/GoogleAuthenticator</PackageProjectUrl>
+	  <IncludeSymbols>true</IncludeSymbols>
+	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageId>GoogleAuthenticator.MutlipleQRCoder</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   
@@ -27,7 +30,7 @@
     <DefineConstants>NETCORE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net452'">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net462'">
     <DefineConstants>NET45;NETFULL</DefineConstants>
   </PropertyGroup>
 
