@@ -49,6 +49,7 @@ jobs:
   pool:
     vmImage: 'windows-latest'
 
+  steps:
   # This creates the Nuget package only if the change was from "master". It also supports publishing from a "develop" branch, which is not currently used in this project
   - script: dotnet build ./Google.Authenticator/Google.Authenticator.csproj --configuration $(buildConfiguration)
     displayName: build package
