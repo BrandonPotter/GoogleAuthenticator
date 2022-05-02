@@ -2,12 +2,21 @@ name: BrandonPotter.GoogleAuthenticator - build and test
 trigger: [ master ]
 pr: [ master ]
 
-variables:
-  buildConfiguration: Release
+strategy:
+  matrix:
+    linux:
+      imageName: 'ubuntu-latest'
+    mac:
+      imageName: 'macOS-latest'
+    windows:
+      imageName: 'windows-latest'
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: $(imageName)
 
+variables:
+  buildConfiguration: Release
+ 
 steps:
 
 # There is a legacy project in the solution that dotnet won't build, so restoring and building individual projects
@@ -32,7 +41,7 @@ steps:
 
 # This creates the Nuget package only if the change was from "master". It also supports publishing from a "develop" branch, which is not currently used in this project
 - script: dotnet pack ./Google.Authenticator/Google.Authenticator.csproj --configuration $(buildConfiguration) --no-build --output %Build_ArtifactStagingDirectory%
-  condition: and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'master'),eq(variables['Build.SourceBranchName'], 'develop')))
+  condition: and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'master'),eq(variables['Build.SourceBranchName'], 'develop')), eq( variables['Agent.OS'], 'Windows_NT' ))
   displayName: pack
 
 - task: PublishBuildArtifacts@1
@@ -40,15 +49,3 @@ steps:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)'
     artifactName: NugetPackage
 
-# The below will publish the package to Nuget, but requires feed credentials "Nuget" to be created first
-# It also has support for a "develop" branch in case you ever want to use that for pre-releases
-# Alternatively, set up a Release pipeline to publish only when you want to
-
-# - task: NuGetCommand@2
-#   displayName: publish
-#   condition: and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'master'),eq(variables['Build.SourceBranchName'], 'develop')))
-#   inputs:
-#     command: push
-#     nuGetFeedType: external
-#     publishFeedCredentials: 'Nuget'
-#     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
