@@ -5,50 +5,60 @@ pr: [ master ]
 variables:
   buildConfiguration: Release
 
-pool:
-  vmImage: 'windows-latest'
+jobs:
+- job: Test
 
-steps:
+  strategy:
+    matrix:
+      linux:
+        imageName: 'ubuntu-latest'
+      #mac:
+      #  imageName: 'macOS-latest'
+      windows:
+        imageName: 'windows-latest'
 
-# There is a legacy project in the solution that dotnet won't build, so restoring and building individual projects
-- script: dotnet restore ./Google.Authenticator/Google.Authenticator.csproj 
-  displayName: dotnet restore package
+  pool:
+    vmImage: $(imageName)
+  
+  steps:
 
-- script: dotnet restore ./Google.Authenticator.Tests/Google.Authenticator.Tests.csproj --no-dependencies
-  displayName: dotnet restore tests
+  # There is a legacy project in the solution that dotnet won't build, so restoring and building individual projects
+  - script: dotnet restore ./Google.Authenticator/Google.Authenticator.csproj 
+    displayName: dotnet restore package
 
-- script: dotnet build ./Google.Authenticator/Google.Authenticator.csproj --configuration $(buildConfiguration) --no-restore
-  displayName: build package
+  - script: dotnet restore ./Google.Authenticator.Tests/Google.Authenticator.Tests.csproj --no-dependencies
+    displayName: dotnet restore tests
 
-- script: dotnet build ./Google.Authenticator.Tests/Google.Authenticator.Tests.csproj --configuration $(buildConfiguration) --no-restore --no-dependencies
-  displayName: build tests
+  - script: dotnet build ./Google.Authenticator/Google.Authenticator.csproj --configuration $(buildConfiguration) --no-restore
+    displayName: build package
 
-- task: DotNetCoreCLI@2
-  displayName: test
-  inputs:
-    command: test
-    projects: './Google.Authenticator.Tests/Google.Authenticator.Tests.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+  - script: dotnet build ./Google.Authenticator.Tests/Google.Authenticator.Tests.csproj --configuration $(buildConfiguration) --no-restore --no-dependencies
+    displayName: build tests
 
-# This creates the Nuget package only if the change was from "master". It also supports publishing from a "develop" branch, which is not currently used in this project
-- script: dotnet pack ./Google.Authenticator/Google.Authenticator.csproj --configuration $(buildConfiguration) --no-build --output %Build_ArtifactStagingDirectory%
-  condition: and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'master'),eq(variables['Build.SourceBranchName'], 'develop')))
-  displayName: pack
+  - task: DotNetCoreCLI@2
+    displayName: test
+    inputs:
+      command: test
+      projects: './Google.Authenticator.Tests/Google.Authenticator.Tests.csproj'
+      arguments: '--configuration $(buildConfiguration)'
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    artifactName: NugetPackage
+- job: Pack
+  dependsOn: Test
+  condition: and(succeeded('Test'), or(eq(variables['Build.SourceBranchName'], 'master'),eq(variables['Build.SourceBranchName'], 'develop')))
 
-# The below will publish the package to Nuget, but requires feed credentials "Nuget" to be created first
-# It also has support for a "develop" branch in case you ever want to use that for pre-releases
-# Alternatively, set up a Release pipeline to publish only when you want to
+  pool:
+    vmImage: 'windows-latest'
 
-# - task: NuGetCommand@2
-#   displayName: publish
-#   condition: and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'master'),eq(variables['Build.SourceBranchName'], 'develop')))
-#   inputs:
-#     command: push
-#     nuGetFeedType: external
-#     publishFeedCredentials: 'Nuget'
-#     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
+  steps:
+  # This creates the Nuget package only if the change was from "master". It also supports publishing from a "develop" branch, which is not currently used in this project
+  - script: dotnet build ./Google.Authenticator/Google.Authenticator.csproj --configuration $(buildConfiguration)
+    displayName: build package
+
+  - script: dotnet pack ./Google.Authenticator/Google.Authenticator.csproj --configuration $(buildConfiguration) --no-build --output %Build_ArtifactStagingDirectory%
+    displayName: pack
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: NugetPackage
+
