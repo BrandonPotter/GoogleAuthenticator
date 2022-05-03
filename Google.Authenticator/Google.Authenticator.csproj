@@ -1,7 +1,7 @@
 ﻿
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <Product>Google Authenticator Two-Factor</Product>
     <Title>Google Authenticator Two-Factor Authentication Library</Title>
     <Description>Google Authenticator Two-Factor Authentication Library (Not officially affiliated with Google.)</Description>
