@@ -36,7 +36,7 @@ bool result = tfa.ValidateTwoFactorPIN(key, txtCode.Text)
 
 ## Updates
 
-### 3.0
+### 3.0.0-beta1
 Removed support for legacy .Net Framework. Lowest supported versions are now netstandard2.0 and Net 4.6.2.  
 ALl use of System.Drawing has been removed. In 2.5, only Net 6.0 avoided System.Drawing.
 
