@@ -36,6 +36,10 @@ bool result = tfa.ValidateTwoFactorPIN(key, txtCode.Text)
 
 ## Updates
 
+### 3.0
+Removed support for legacy .Net Framework. Lowest supported versions are now netstandard2.0 and Net 4.6.2.  
+ALl use of System.Drawing has been removed. In 2.5, only Net 6.0 avoided System.Drawing.
+
 ### 2.5.0
 Now runs on .Net 6.0.  
 Technically the QR Coder library we rely on still does not fully support .Net 6.0 so it is possible there will be other niggling issues, but for now all tests pass for .Net 6.0 on both Windows and Linux.
