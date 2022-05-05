@@ -1,19 +1,16 @@
 # GoogleAuthenticator
-Simple, easy to use server-side two-factor authentication library for .NET that works with Google Authenticator
+Form of Simple, easy to use server-side two-factor authentication library for .NET that works with Google Authenticator.  This fork allows for usage of either QRCoder or SkiaSharp.QRCode to generate the QR Code.  In order to generate a QRCode you must include the reference 
+for either package.  
 
-[![Build Status](https://dev.azure.com/brandon-potter/GoogleAuthenticator/_apis/build/status/BrandonPotter.GoogleAuthenticator?branchName=master)](https://dev.azure.com/brandon-potter/GoogleAuthenticator/_build/latest?definitionId=1&branchName=master)
-[![NuGet Status](https://buildstats.info/nuget/GoogleAuthenticator)](https://www.nuget.org/packages/GoogleAuthenticator/)
+Currently Supported Versions:
+QRCoder: 1.4.3
+SkiaSharp.QRCode: 0.6.0
 
-[`Install-Package GoogleAuthenticator`](https://www.nuget.org/packages/GoogleAuthenticator)
-
-## 1.x Usage
-See blog post for usage instructions *(1.x only)*:
-
-https://csharprookie.wordpress.com/2015/03/17/implementing-free-two-factor-authentication-in-net-using-google-authenticator/
+[`Install-Package GoogleAuthenticator`](https://www.nuget.org/packages/GoogleAuthenticator.MutlipleQRCoder)
 
 ## 2.x Usage
 
-*Additional examples at [Google.Authenticator.WinTest](https://github.com/BrandonPotter/GoogleAuthenticator/tree/master/Google.Authenticator.WinTest) and [Google.Authenticator.WebSample](https://github.com/BrandonPotter/GoogleAuthenticator/tree/master/Google.Authenticator.WebSample)*
+*Additional examples at [Google.Authenticator.WinTest](https://github.com/roger-castaldo/GoogleAuthenticator/tree/master/Google.Authenticator.WinTest) and [Google.Authenticator.WebSample](https://github.com/roger-castaldo/GoogleAuthenticator/tree/master/Google.Authenticator.WebSample)*
 
 ```csharp
 using Google.Authenticator;
@@ -46,4 +43,4 @@ Technically the QR Coder library we rely on still does not fully support .Net 6.
 * Don't use the secret key and `ManualEntryKey` interchangeably. `ManualEntryKey` is used to enter into the authenticator app when scanning a QR code is impossible and is derived from the secret key ([discussion example](https://github.com/BrandonPotter/GoogleAuthenticator/issues/54))
 
 # Notes
-On linux, you need to ensure `libgdiplus` is installed if you want to generate QR Codes. See [https://github.com/codebude/QRCoder/issues/227](https://github.com/codebude/QRCoder/issues/227).
+On linux, if you use QRCoder instead of SkiaSharp.QRCode, you need to ensure `libgdiplus` is installed if you want to generate QR Codes. See [https://github.com/codebude/QRCoder/issues/227](https://github.com/codebude/QRCoder/issues/227).

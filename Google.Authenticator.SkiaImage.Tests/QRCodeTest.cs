@@ -31,11 +31,11 @@ namespace Google.Authenticator.Tests
 
         private static string ExtractUrlFromQRImage(string qrCodeSetupImageUrl)
         {
-            var headerLength = "data:image/jpeg;base64,".Length;
+            var headerLength = "data:image/png;base64,".Length;
             var rawImageData = qrCodeSetupImageUrl.Substring(headerLength, qrCodeSetupImageUrl.Length - headerLength);
             var imageData = Convert.FromBase64String(rawImageData);
 
-            var bw = new BinaryWriter(new FileInfo("C:\\temp\\skia_raw.jpg").OpenWrite());
+            var bw = new BinaryWriter(new FileInfo("C:\\temp\\skia_raw.png").OpenWrite());
             bw.Write(imageData);
             bw.Flush();
             bw.Close();
@@ -64,11 +64,11 @@ namespace Google.Authenticator.Tests
             reader.Options.TryInverted=true;
             reader.AutoRotate=true;
             var image = new ImageMagick.MagickImage(imageData);
-            image.Write(new FileInfo("C:\\temp\\skia_qrcode.jpg"));
+            image.Write(new FileInfo("C:\\temp\\skia_qrcode.png"));
             image.Resize(image.Width*3, image.Height*3);
             image.Sharpen(3.0f, 3.0f);
             image.Grayscale();
-            image.Write(new FileInfo("C:\\temp\\skia_qrcode_extended.jpg"));
+            image.Write(new FileInfo("C:\\temp\\skia_qrcode_extended.png"));
             var wrappedImage = new ZXing.Magick.MagickImageLuminanceSource(image);
             var res = reader.Decode(wrappedImage);
             return res.Text;

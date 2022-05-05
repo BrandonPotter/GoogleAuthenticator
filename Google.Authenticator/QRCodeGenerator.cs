@@ -161,11 +161,13 @@ namespace Google.Authenticator
                                     {"canvas", canvas},
                                     {"area", _objectTypes["SkiaSharp.SKRect"].GetConstructor(new Type[]{typeof(float),typeof(float),typeof(float),typeof(float)}).Invoke(new object[]{0f,0f,(float)CanvasSize, (float)CanvasSize})},
                                     {"data",qrCodeData },
-                                    {"qrColor",_SKIA_BLACK }
+                                    {"qrColor",_SKIA_BLACK },
+                                    {"backgroundColor",_SKIA_WHITE },
+                                    {"iconData",null }
                                 });
                                 _InvokeMethod(canvas.GetType(), canvas, "Flush", new Dictionary<string, object>() { });
                                 var imgData = _InvokeMethod(img.GetType(), img, "Encode", new Dictionary<string, object>(){
-                                    {"format",Enum.Parse(_objectTypes["SkiaSharp.SKEncodedImageFormat"], "Jpeg") },
+                                    {"format",Enum.Parse(_objectTypes["SkiaSharp.SKEncodedImageFormat"], "Png") },
                                     {"quality",100 }
                                 });
                                 imgData.GetType().GetMethod("SaveTo", new Type[] { typeof(Stream) }).Invoke(imgData, new object[] { ms });
@@ -195,7 +197,7 @@ namespace Google.Authenticator
                             }
 #endif
                         }
-                        qrCodeUrl = $"data:image/{(_CAN_USE_SKIA ? "jpeg" :"png")};base64,{Convert.ToBase64String(ms.ToArray())}";
+                        qrCodeUrl = $"data:image/png;base64,{Convert.ToBase64String(ms.ToArray())}";
                     }
                     qrCodeData.Dispose();
                 }
@@ -269,7 +271,8 @@ namespace Google.Authenticator
                 }
                 return mi.Invoke(owner, mpars);
             }
-            return null;
+            else
+                throw new Exception(string.Format("Unable to locate desired method {0} in type {1}", new object[] { methodName, ownerType.FullName }));
         }
     }
 }
