@@ -36,9 +36,10 @@ bool result = tfa.ValidateTwoFactorPIN(key, txtCode.Text)
 
 ## Updates
 
-### 3.0.0-beta1
-Removed support for legacy .Net Framework. Lowest supported versions are now netstandard2.0 and .Net 4.6.2.  
-All use of System.Drawing has been removed. In 2.5, only Net 6.0 avoided System.Drawing.
+### 3.0.0-beta
+- Removed support for legacy .Net Framework. Lowest supported versions are now netstandard2.0 and .Net 4.6.2.  
+- All use of System.Drawing has been removed. In 2.5, only Net 6.0 avoided System.Drawing.
+- Linux installations no longer need to ensure `libgdiplus` is installed as it is no longer used.
 
 ### 2.5.0
 Now runs on .Net 6.0.  
@@ -50,4 +51,4 @@ Technically the QR Coder library we rely on still does not fully support .Net 6.
 * Don't use the secret key and `ManualEntryKey` interchangeably. `ManualEntryKey` is used to enter into the authenticator app when scanning a QR code is impossible and is derived from the secret key ([discussion example](https://github.com/BrandonPotter/GoogleAuthenticator/issues/54))
 
 # Notes
-On linux, you need to ensure `libgdiplus` is installed if you want to generate QR Codes. See [https://github.com/codebude/QRCoder/issues/227](https://github.com/codebude/QRCoder/issues/227).
+*With versions prior to 3.0*, on linux, you need to ensure `libgdiplus` is installed if you want to generate QR Codes. See [https://github.com/codebude/QRCoder/issues/227](https://github.com/codebude/QRCoder/issues/227).

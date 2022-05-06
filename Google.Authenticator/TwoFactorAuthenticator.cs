@@ -96,22 +96,6 @@ namespace Google.Authenticator
                 }
 
             }
-            catch (TypeInitializationException e)
-            {
-                if (e.InnerException != null
-                    && e.InnerException.GetType() == typeof(DllNotFoundException)
-                    && e.InnerException.Message.Contains("libgdiplus"))
-                {
-                    throw new MissingDependencyException(
-                        "It looks like libgdiplus has not been installed - see" +
-                        " https://github.com/codebude/QRCoder/issues/227",
-                        e);
-                }
-                else
-                {
-                    throw;
-                }
-            }
             catch (System.Runtime.InteropServices.ExternalException e)
             {
                 if (e.Message.Contains("GDI+") && qrPixelsPerModule > 10)
