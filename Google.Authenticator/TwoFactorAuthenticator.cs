@@ -60,12 +60,7 @@ namespace Google.Authenticator
                 throw new NullReferenceException("Account Title is null");
             }
 
-            // MS wants us to change this to use EscapeDataString - https://docs.microsoft.com/en-us/dotnet/fundamentals/syslib-diagnostics/syslib0013
-            // But that changes the output. Specifically "a@b.com" becomes "a%40b.com"
-            // See issue https://github.com/BrandonPotter/GoogleAuthenticator/issues/103
-            #pragma warning disable SYSLIB0013
-            accountTitleNoSpaces = RemoveWhitespace(Uri.EscapeUriString(accountTitleNoSpaces));
-            #pragma warning restore SYSLIB0013
+            accountTitleNoSpaces = RemoveWhitespace(Uri.EscapeDataString(accountTitleNoSpaces));
 
             var encodedSecretKey = Base32Encoding.ToString(accountSecretKey);
 
