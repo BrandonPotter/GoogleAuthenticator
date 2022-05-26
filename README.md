@@ -36,7 +36,10 @@ bool result = tfa.ValidateTwoFactorPIN(key, txtCode.Text)
 
 ## Updates
 
-### 3.0.0-beta
+### 3.0.0-beta2
+Changed from using `EscapeUriString` to `EscapeDataString` to encode the "account title" as the former is [obsolete in .Net 6](https://docs.microsoft.com/en-us/dotnet/fundamentals/syslib-diagnostics/syslib0013). This changes the value in the generated data string from `a@b.com` to `a%40b.com`. We have tested this with Google Authenticator, Lastpass Authenticator and Microsoft Authenticator. All three of them handle it correctl and all three recognise that it is still the same account so this should be safe in most cases.
+
+### 3.0.0-beta1
 - Removed support for legacy .Net Framework. Lowest supported versions are now netstandard2.0 and .Net 4.6.2.  
 - All use of System.Drawing has been removed. In 2.5, only Net 6.0 avoided System.Drawing.
 - Linux installations no longer need to ensure `libgdiplus` is installed as it is no longer used.
