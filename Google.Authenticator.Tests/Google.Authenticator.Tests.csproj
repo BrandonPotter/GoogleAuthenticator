@@ -4,9 +4,9 @@
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows> 
     <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX> 
     <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux> 
-    <TargetFrameworks Condition="'$(IsWindows)'=='true'">net462;netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(IsLinux)'=='true'">netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(IsOSX)'=='true'">netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IsWindows)'=='true'">net462;net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IsLinux)'=='true'">net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IsOSX)'=='true'">net6.0;net7.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
