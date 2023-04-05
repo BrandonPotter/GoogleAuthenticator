@@ -15,7 +15,7 @@ Simple, easy to use server-side two-factor authentication library for .NET that 
 ```csharp
 using Google.Authenticator;
 
-string key = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 10);
+string key;
 
 TwoFactorAuthenticator tfa = new TwoFactorAuthenticator();
 SetupCode setupInfo = tfa.GenerateSetupCode("Test Two Factor", "user@example.com", key, false, 3);
