@@ -331,7 +331,7 @@ namespace Google.Authenticator
             return codes.ToArray();
         }
 
-        public static byte[] ConvertSecretToBytes(string secret, bool secretIsBase32) =>
+        private static byte[] ConvertSecretToBytes(string secret, bool secretIsBase32) =>
             secretIsBase32 ? Base32Encoding.ToBytes(secret) : Encoding.UTF8.GetBytes(secret);
     }
 }
