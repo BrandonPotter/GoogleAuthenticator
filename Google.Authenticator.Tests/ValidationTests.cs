@@ -28,6 +28,9 @@ namespace Google.Authenticator.Tests
             subject.ValidateTwoFactorPIN(secretAsBytes, pin, TimeSpan.FromMinutes(irrelevantNumberToAvoidDuplicatePinsBeingRemoved));
             subject.ValidateTwoFactorPIN(secretAsBase32, pin, true);
             subject.ValidateTwoFactorPIN(secretAsBase32, pin, TimeSpan.FromMinutes(irrelevantNumberToAvoidDuplicatePinsBeingRemoved), true);
+            subject.ValidateTwoFactorPIN(secret, pin, irrelevantNumberToAvoidDuplicatePinsBeingRemoved * 2, false);
+            subject.ValidateTwoFactorPIN(secretAsBase32, pin, irrelevantNumberToAvoidDuplicatePinsBeingRemoved * 2, true);
+            subject.ValidateTwoFactorPIN(secretAsBytes, pin, irrelevantNumberToAvoidDuplicatePinsBeingRemoved * 2);
         }
 
         public static IEnumerable<object[]> GetPins()
