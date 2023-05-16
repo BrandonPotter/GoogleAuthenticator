@@ -1,0 +1,26 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <p><strong>Account Secret Key (randomly generated):</strong> @Model.Key</p>
+    <hr />
+    <p>
+        <strong>Setup QR Code:</strong><br />
+        <img src="@Model.QRImageUrl" />
+    </p>
+    <p><strong>Manual Setup Code: </strong> @Model.ManualEntryKey</p>
+    <hr />
+    @using (Html.BeginForm(FormMethod.Post))
+    {
+        @Html.HiddenFor(x => x.Key)
+        <p>
+            Validate Code: <input type="text" name="txtCode" />
+        </p>
+        <p><button class="btn btn-primary">Validate My Code!</button></p>
+    }
+    <p style="font-weight:bold">@TempData["ValidationResult"]</p>
+    @*Validate Code: <asp:TextBox runat="server" ID="txtCode"></asp:TextBox> <asp:Button runat="server" ID="btnValidate" Text="Validate My Code!" OnClick="btnValidate_Click" /><br /><asp:Label runat="server" Font-Bold="true" ID="lblValidationResult"></asp:Label>*@
+</div>

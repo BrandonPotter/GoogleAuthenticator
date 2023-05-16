@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2019
-VisualStudioVersion = 16.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 15.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Google.Authenticator", "Google.Authenticator\Google.Authenticator.csproj", "{3D92DE47-0AB8-466F-9083-AF65D865E4BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Google.Authenticator", "Google.Authenticator\Google.Authenticator.csproj", "{3D92DE47-0AB8-466F-9083-AF65D865E4BE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Google.Authenticator.WinTest", "Google.Authenticator.WinTest\Google.Authenticator.WinTest.csproj", "{C2B44C17-B77B-4DA8-B924-96B28B50D198}"
 EndProject
@@ -20,30 +20,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configurations", "Configura
 		PublishScripts\Configurations\GoogleAuthenticatorWebSample-WAWS-dev.json = PublishScripts\Configurations\GoogleAuthenticatorWebSample-WAWS-dev.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Google.Authenticator.Tests", "Google.Authenticator.Tests\Google.Authenticator.Tests.csproj", "{5671E1C5-7CD0-4F42-8FFD-33879A9663DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Google.Authenticator.Tests", "Google.Authenticator.Tests\Google.Authenticator.Tests.csproj", "{5671E1C5-7CD0-4F42-8FFD-33879A9663DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoogleAuthenticator.WebCoreSample", "GoogleAuthenticator.WebCoreSample\GoogleAuthenticator.WebCoreSample.csproj", "{2338DB83-00B0-40E2-8C75-F96CB2D63E87}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 6
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://x9tech.visualstudio.com/defaultcollection
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = Google.Authenticator\\Google.Authenticator.csproj
-		SccProjectName1 = Google.Authenticator
-		SccLocalPath1 = Google.Authenticator
-		SccProjectUniqueName2 = Google.Authenticator.WinTest\\Google.Authenticator.WinTest.csproj
-		SccProjectName2 = Google.Authenticator.WinTest
-		SccLocalPath2 = Google.Authenticator.WinTest
-		SccProjectUniqueName3 = Google.Authenticator.WebSample\\Google.Authenticator.WebSample.csproj
-		SccProjectName3 = Google.Authenticator.WebSample
-		SccLocalPath3 = Google.Authenticator.WebSample
-		SccProjectUniqueName4 = Google.Authenticator.Tests\\Google.Authenticator.Tests.csproj
-		SccProjectName4 = Google.Authenticator.Tests
-		SccLocalPath4 = Google.Authenticator.Tests
-		SccProjectUniqueName5 = OTPCycler\\OTPCycler.csproj
-		SccProjectName5 = OTPCycler
-		SccLocalPath5 = OTPCycler
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -65,10 +46,10 @@ Global
 		{5671E1C5-7CD0-4F42-8FFD-33879A9663DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5671E1C5-7CD0-4F42-8FFD-33879A9663DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5671E1C5-7CD0-4F42-8FFD-33879A9663DA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5069C6AB-90A3-4640-8070-A4B84FEC3F40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5069C6AB-90A3-4640-8070-A4B84FEC3F40}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5069C6AB-90A3-4640-8070-A4B84FEC3F40}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5069C6AB-90A3-4640-8070-A4B84FEC3F40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2338DB83-00B0-40E2-8C75-F96CB2D63E87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2338DB83-00B0-40E2-8C75-F96CB2D63E87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2338DB83-00B0-40E2-8C75-F96CB2D63E87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2338DB83-00B0-40E2-8C75-F96CB2D63E87}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
