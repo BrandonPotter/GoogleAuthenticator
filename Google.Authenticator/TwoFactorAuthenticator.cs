@@ -303,7 +303,7 @@ namespace Google.Authenticator
         {
             var iterationOffset = 0;
 
-            if (timeTolerance.TotalSeconds > 30)
+            if (timeTolerance.TotalSeconds >= 30)
                 iterationOffset = Convert.ToInt32(timeTolerance.TotalSeconds / 30.00);
 
             return GetCurrentPINs(accountSecretKey, iterationOffset);
