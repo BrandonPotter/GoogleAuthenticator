@@ -33,6 +33,32 @@ namespace Google.Authenticator.Tests
             subject.ValidateTwoFactorPIN(secretAsBytes, pin, irrelevantNumberToAvoidDuplicatePinsBeingRemoved * 2);
         }
 
+        [Fact]
+        public void GetCurrentPinsHandles15SecondInterval()
+        {
+            // This is nonsensical, really, as anything less than 30 == 0 in practice.
+            var subject = new TwoFactorAuthenticator();
+
+            subject.GetCurrentPINs(secret, TimeSpan.FromSeconds(15)).Length.ShouldBe(1);
+        }
+
+
+        [Fact]
+        public void GetCurrentPinsHandles30SecondInterval()
+        {
+            var subject = new TwoFactorAuthenticator();
+
+            subject.GetCurrentPINs(secret, TimeSpan.FromSeconds(30)).Length.ShouldBe(3);
+        }
+
+        [Fact]
+        public void GetCurrentPinsHandles60SecondInterval()
+        {
+            var subject = new TwoFactorAuthenticator();
+
+            subject.GetCurrentPINs(secret, TimeSpan.FromSeconds(60)).Length.ShouldBe(5);
+        }
+
         public static IEnumerable<object[]> GetPins()
         {
             var subject = new TwoFactorAuthenticator();

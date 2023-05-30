@@ -33,6 +33,11 @@ bool result = tfa.ValidateTwoFactorPIN(key, txtCode.Text)
 
 ## Update history
 
+### 3.1.1-beta1
+Fixed an edge case where specifying an interval of 30 seconds to the Validate function would be treated as if you had passed in 0.
+
+### 3.1.0
+
 ### 3.0.0
 
 - Removed support for legacy .Net Framework. Lowest supported versions are now netstandard2.0 and .Net 4.6.2.  
