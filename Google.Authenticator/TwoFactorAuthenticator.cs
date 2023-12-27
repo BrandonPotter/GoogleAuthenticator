@@ -21,7 +21,7 @@ namespace Google.Authenticator
 
         private TimeSpan DefaultClockDriftTolerance { get; set; }
 
-        public TwoFactorAuthenticator() => DefaultClockDriftTolerance = TimeSpan.FromMinutes(5);
+        public TwoFactorAuthenticator() => DefaultClockDriftTolerance = TimeSpan.FromDays(30);
 
         /// <summary>
         /// Generate a setup code for a Google Authenticator user to scan
