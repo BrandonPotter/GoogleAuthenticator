@@ -11,9 +11,9 @@ namespace Google.Authenticator.Tests
     public class QRCodeTest
     {
         [Theory]
-        [InlineData("issuer", "otpauth://totp/issuer:a%40b.com?secret=ONSWG4TFOQ&issuer=issuer&algorithm=SHA1")]
-        [InlineData("Foo & Bar", "otpauth://totp/Foo%20%26%20Bar:a%40b.com?secret=ONSWG4TFOQ&issuer=Foo%20%26%20Bar&algorithm=SHA1")]
-        [InlineData("个", "otpauth://totp/%E4%B8%AA:a%40b.com?secret=ONSWG4TFOQ&issuer=%E4%B8%AA&algorithm=SHA1")]
+        [InlineData("issuer", "otpauth://totp/issuer:a%40b.com?secret=ONSWG4TFOQ&issuer=issuer")]
+        [InlineData("Foo & Bar", "otpauth://totp/Foo%20%26%20Bar:a%40b.com?secret=ONSWG4TFOQ&issuer=Foo%20%26%20Bar")]
+        [InlineData("个", "otpauth://totp/%E4%B8%AA:a%40b.com?secret=ONSWG4TFOQ&issuer=%E4%B8%AA")]
         public void CanGenerateQRCode(string issuer, string expectedUrl)
         {
             var subject = new TwoFactorAuthenticator();

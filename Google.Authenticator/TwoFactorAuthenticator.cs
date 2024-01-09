@@ -71,11 +71,11 @@ namespace Google.Authenticator
             var encodedSecretKey = Base32Encoding.ToString(accountSecretKey);
 
             var provisionUrl = string.IsNullOrWhiteSpace(issuer)
-                ? $"otpauth://totp/{accountTitleNoSpaces}?secret={encodedSecretKey.Trim('=')}&algorithm={HashType}"
+                ? $"otpauth://totp/{accountTitleNoSpaces}?secret={encodedSecretKey.Trim('=')}{(HashType == HashType.SHA1 ? "" : $"&algorithm={HashType}")}"
                 //  https://github.com/google/google-authenticator/wiki/Conflicting-Accounts
                 // Added additional prefix to account otpauth://totp/Company:joe_example@gmail.com
                 // for backwards compatibility
-                : $"otpauth://totp/{UrlEncode(issuer)}:{accountTitleNoSpaces}?secret={encodedSecretKey.Trim('=')}&issuer={UrlEncode(issuer)}&algorithm={HashType}";
+                : $"otpauth://totp/{UrlEncode(issuer)}:{accountTitleNoSpaces}?secret={encodedSecretKey.Trim('=')}&issuer={UrlEncode(issuer)}{(HashType == HashType.SHA1 ? "" : $"&algorithm={HashType}")}";
 
             return new SetupCode(
                 accountTitleNoSpaces,

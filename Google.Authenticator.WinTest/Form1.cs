@@ -49,7 +49,7 @@ namespace Google.Authenticator.WinTest
 
         private void btnGetCurrentCode_Click(object sender, EventArgs e)
         {
-            this.txtCurrentCodes.Text = string.Join(System.Environment.NewLine, new TwoFactorAuthenticator().GetCurrentPINs(this.txtSecretKey.Text));
+            this.txtCurrentCodes.Text = string.Join(Environment.NewLine, new TwoFactorAuthenticator(HashType.SHA256).GetCurrentPINs(this.txtSecretKey.Text));
         }
 
         private void btnDebugTest_Click(object sender, EventArgs e)
