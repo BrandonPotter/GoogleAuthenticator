@@ -23,7 +23,11 @@ namespace Google.Authenticator
 
         private HashType HashType { get; set; }
 
-        public TwoFactorAuthenticator(HashType hashType = HashType.SHA1)
+         public TwoFactorAuthenticator() : this(HashType.SHA1)
+        {}
+        
+        public TwoFactorAuthenticator(HashType hashType)
+
         {
             HashType = hashType;
             DefaultClockDriftTolerance = TimeSpan.FromMinutes(5);
