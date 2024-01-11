@@ -43,6 +43,10 @@ Fixed an edge case where specifying an interval of 30 seconds to the Validate fu
 
 ### 3.1.0
 
+- Removed .NET 5 and added .NET 7 to test frameworks
+- Updated dependencies for test runs
+- Support ValidateTwoFactorPIN with iterationOffset as parameter
+
 ### 3.0.0
 
 - Removed support for legacy .Net Framework. Lowest supported versions are now netstandard2.0 and .Net 4.6.2.  
