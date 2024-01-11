@@ -21,7 +21,17 @@ namespace Google.Authenticator
 
         private TimeSpan DefaultClockDriftTolerance { get; set; }
 
-        public TwoFactorAuthenticator() => DefaultClockDriftTolerance = TimeSpan.FromMinutes(5);
+        private HashType HashType { get; set; }
+
+         public TwoFactorAuthenticator() : this(HashType.SHA1)
+        {}
+        
+        public TwoFactorAuthenticator(HashType hashType)
+
+        {
+            HashType = hashType;
+            DefaultClockDriftTolerance = TimeSpan.FromMinutes(5);
+        }
 
         /// <summary>
         /// Generate a setup code for a Google Authenticator user to scan
@@ -65,11 +75,11 @@ namespace Google.Authenticator
             var encodedSecretKey = Base32Encoding.ToString(accountSecretKey);
 
             var provisionUrl = string.IsNullOrWhiteSpace(issuer)
-                ? $"otpauth://totp/{accountTitleNoSpaces}?secret={encodedSecretKey.Trim('=')}"
+                ? $"otpauth://totp/{accountTitleNoSpaces}?secret={encodedSecretKey.Trim('=')}{(HashType == HashType.SHA1 ? "" : $"&algorithm={HashType}")}"
                 //  https://github.com/google/google-authenticator/wiki/Conflicting-Accounts
                 // Added additional prefix to account otpauth://totp/Company:joe_example@gmail.com
                 // for backwards compatibility
-                : $"otpauth://totp/{UrlEncode(issuer)}:{accountTitleNoSpaces}?secret={encodedSecretKey.Trim('=')}&issuer={UrlEncode(issuer)}";
+                : $"otpauth://totp/{UrlEncode(issuer)}:{accountTitleNoSpaces}?secret={encodedSecretKey.Trim('=')}&issuer={UrlEncode(issuer)}{(HashType == HashType.SHA1 ? "" : $"&algorithm={HashType}")}";
 
             return new SetupCode(
                 accountTitleNoSpaces,
@@ -145,7 +155,14 @@ namespace Google.Authenticator
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(counter);
 
-            var hmac = new HMACSHA1(key);
+            HMAC hmac;
+            if (HashType == HashType.SHA256)
+                hmac = new HMACSHA256(key);
+            else if (HashType == HashType.SHA512)
+                hmac = new HMACSHA512(key);
+            else
+                hmac = new HMACSHA1(key);
+
             var hash = hmac.ComputeHash(counter);
             var offset = hash[hash.Length - 1] & 0xf;
 

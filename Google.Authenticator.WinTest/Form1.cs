@@ -27,7 +27,7 @@ namespace Google.Authenticator.WinTest
 
         private void btnSetup_Click(object sender, EventArgs e)
         {
-            TwoFactorAuthenticator tfA = new TwoFactorAuthenticator();
+            TwoFactorAuthenticator tfA = new TwoFactorAuthenticator(HashType.SHA256);
             var setupCode = tfA.GenerateSetupCode(this.txtAccountTitle.Text, this.txtAccountTitle.Text, this.txtSecretKey.Text, false, 3);
 
             //WebClient wc = new WebClient();
@@ -41,7 +41,7 @@ namespace Google.Authenticator.WinTest
 
         private void btnTest_Click(object sender, EventArgs e)
         {
-            TwoFactorAuthenticator tfA = new TwoFactorAuthenticator();
+            TwoFactorAuthenticator tfA = new TwoFactorAuthenticator(HashType.SHA256);
             var result = tfA.ValidateTwoFactorPIN(txtSecretKey.Text, this.txtCode.Text);
 
             MessageBox.Show(result ? "Validated!" : "Incorrect", "Result");
@@ -49,7 +49,7 @@ namespace Google.Authenticator.WinTest
 
         private void btnGetCurrentCode_Click(object sender, EventArgs e)
         {
-            this.txtCurrentCodes.Text = string.Join(System.Environment.NewLine, new TwoFactorAuthenticator().GetCurrentPINs(this.txtSecretKey.Text));
+            this.txtCurrentCodes.Text = string.Join(Environment.NewLine, new TwoFactorAuthenticator(HashType.SHA256).GetCurrentPINs(this.txtSecretKey.Text));
         }
 
         private void btnDebugTest_Click(object sender, EventArgs e)
