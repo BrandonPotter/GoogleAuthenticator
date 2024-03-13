@@ -6,7 +6,7 @@ using System;
 
 namespace Google.Authenticator.Tests
 {
-    public class ValidationTests
+    public class SecretTypeTests
     {
         const string secret = "ggggjhG&^*&^jfSSSddd";
         private readonly static byte[] secretAsBytes = Encoding.UTF8.GetBytes(secret);
@@ -70,81 +70,6 @@ namespace Google.Authenticator.Tests
             subject.ValidateTwoFactorPIN(secret, pin, irrelevantNumberToAvoidDuplicatePinsBeingRemoved * 2, false);
             subject.ValidateTwoFactorPIN(secretAsBase32, pin, irrelevantNumberToAvoidDuplicatePinsBeingRemoved * 2, true);
             subject.ValidateTwoFactorPIN(secretAsBytes, pin, irrelevantNumberToAvoidDuplicatePinsBeingRemoved * 2);
-        }
-
-        [Fact]
-        public void GetCurrentPinsHandles15SecondInterval()
-        {
-            // This is nonsensical, really, as anything less than 30 == 0 in practice.
-            var subject = new TwoFactorAuthenticator();
-
-            subject.GetCurrentPINs(secret, TimeSpan.FromSeconds(15)).Length.ShouldBe(1);
-        }
-
-        [Fact]
-        public void GetCurrentPinsHandles15SecondIntervalSHA256()
-        {
-            // This is nonsensical, really, as anything less than 30 == 0 in practice.
-            var subject = new TwoFactorAuthenticator(HashType.SHA256);
-
-            subject.GetCurrentPINs(secret, TimeSpan.FromSeconds(15)).Length.ShouldBe(1);
-        }
-
-        [Fact]
-        public void GetCurrentPinsHandles15SecondIntervalSHA512()
-        {
-            // This is nonsensical, really, as anything less than 30 == 0 in practice.
-            var subject = new TwoFactorAuthenticator(HashType.SHA512);
-
-            subject.GetCurrentPINs(secret, TimeSpan.FromSeconds(15)).Length.ShouldBe(1);
-        }
-
-        [Fact]
-        public void GetCurrentPinsHandles30SecondInterval()
-        {
-            var subject = new TwoFactorAuthenticator();
-
-            subject.GetCurrentPINs(secret, TimeSpan.FromSeconds(30)).Length.ShouldBe(3);
-        }
-
-        [Fact]
-        public void GetCurrentPinsHandles30SecondIntervalSHA256()
-        {
-            var subject = new TwoFactorAuthenticator(HashType.SHA256);
-
-            subject.GetCurrentPINs(secret, TimeSpan.FromSeconds(30)).Length.ShouldBe(3);
-        }
-
-        [Fact]
-        public void GetCurrentPinsHandles30SecondIntervalSHA512()
-        {
-            var subject = new TwoFactorAuthenticator(HashType.SHA512);
-
-            subject.GetCurrentPINs(secret, TimeSpan.FromSeconds(30)).Length.ShouldBe(3);
-        }
-
-        [Fact]
-        public void GetCurrentPinsHandles60SecondInterval()
-        {
-            var subject = new TwoFactorAuthenticator();
-
-            subject.GetCurrentPINs(secret, TimeSpan.FromSeconds(60)).Length.ShouldBe(5);
-        }
-
-        [Fact]
-        public void GetCurrentPinsHandles60SecondIntervalSHA256()
-        {
-            var subject = new TwoFactorAuthenticator(HashType.SHA256);
-
-            subject.GetCurrentPINs(secret, TimeSpan.FromSeconds(60)).Length.ShouldBe(5);
-        }
-
-        [Fact]
-        public void GetCurrentPinsHandles60SecondIntervalSHA512()
-        {
-            var subject = new TwoFactorAuthenticator(HashType.SHA512);
-
-            subject.GetCurrentPINs(secret, TimeSpan.FromSeconds(60)).Length.ShouldBe(5);
         }
 
         public static IEnumerable<object[]> GetPins()

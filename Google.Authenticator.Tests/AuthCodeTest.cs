@@ -14,11 +14,9 @@ namespace Google.Authenticator.Tests
 
             var tfa = new TwoFactorAuthenticator();
 
-            var currentTime = 1416643820;
+            var currentCounter = 1416643820;
 
-            // I actually think you are supposed to divide the time by 30 seconds?
-            // Maybe need an overload that takes a DateTime?
-            var actual = tfa.GeneratePINAtInterval(secretKey, currentTime, 6);
+            var actual = tfa.GeneratePINAtInterval(secretKey, currentCounter, 6);
 
             actual.ShouldBe(expected);
         }
