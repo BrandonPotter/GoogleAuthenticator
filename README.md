@@ -33,6 +33,11 @@ bool result = tfa.ValidateTwoFactorPIN(key, txtCode.Text)
 
 ## Update history
 
+### 3.3.0
+
+Added support for configuring the "time step". This is basically how often the code changes.
+The default used by most authenticator apps is 30 seconds, but some hardware devices use 60 seconds. You can now specify this in the constructor.
+
 ### 3.2.0
 
 Added support for HMACSHA256 and HMACSHA512 as per the [RFC spec](https://datatracker.ietf.org/doc/html/rfc6238#section-1.2). In testing it was found that several popular apps (such as Authy and Microsoft Authenticator) may not have support for these algorithms so care should be taken by the developer to ensure compatible apps are used.

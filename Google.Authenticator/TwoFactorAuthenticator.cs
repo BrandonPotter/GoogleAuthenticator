@@ -19,18 +19,32 @@ namespace Google.Authenticator
         private static readonly DateTime _epoch =
             new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        private TimeSpan DefaultClockDriftTolerance { get; set; }
+        private readonly TimeSpan DefaultClockDriftTolerance;
 
-        private HashType HashType { get; set; }
+        private readonly HashType HashType;
 
-         public TwoFactorAuthenticator() : this(HashType.SHA1)
+        private readonly int timeStep;
+
+        public TwoFactorAuthenticator() : this(HashType.SHA1)
         {}
         
-        public TwoFactorAuthenticator(HashType hashType)
+        public TwoFactorAuthenticator(HashType hashType) : this(hashType, 30)
+        {
+        }
 
+        public TwoFactorAuthenticator(int timeStep) : this(HashType.SHA1, timeStep)
+        {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TwoFactorAuthenticator"/> class.
+        /// </summary>
+        /// <param name="hashType">The type of Hash to generate (default is SHA1)</param>
+        /// <param name="timeStep">The length of the "time step" - i.e. how often the code changes. Default is 30.</param>
+        public TwoFactorAuthenticator(HashType hashType, int timeStep)
         {
             HashType = hashType;
             DefaultClockDriftTolerance = TimeSpan.FromMinutes(5);
+            this.timeStep = timeStep;
         }
 
         /// <summary>
@@ -177,10 +191,12 @@ namespace Google.Authenticator
             return password.ToString(new string('0', digits));
         }
 
-        private long GetCurrentCounter() => GetCurrentCounter(DateTime.UtcNow, _epoch, 30);
+        private long GetCurrentCounter() => GetCurrentCounter(DateTime.UtcNow, _epoch);
 
-        private long GetCurrentCounter(DateTime now, DateTime epoch, int timeStep) =>
+        private long GetCurrentCounter(DateTime now, DateTime epoch) =>
             (long) (now - epoch).TotalSeconds / timeStep;
+
+
 
         /// <summary>
         /// Given a PIN from a client, check if it is valid at the current time.
@@ -262,7 +278,7 @@ namespace Google.Authenticator
         /// <param name="secretIsBase32">Flag saying if accountSecretKey is in Base32 format or original secret</param>
         /// <returns>A 6-digit PIN</returns>
         public string GetCurrentPIN(string accountSecretKey, DateTime now, bool secretIsBase32 = false) =>
-            GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(now, _epoch, 30), secretIsBase32: secretIsBase32);
+            GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(now, _epoch), secretIsBase32: secretIsBase32);
 
         /// <summary>
         /// Get the PIN for current time; the same code that a 2FA app would generate for the current time.
@@ -281,7 +297,7 @@ namespace Google.Authenticator
         /// <param name="now">The time you wish to generate the pin for</param>
         /// <returns>A 6-digit PIN</returns>
         public string GetCurrentPIN(byte[] accountSecretKey, DateTime now) =>
-            GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(now, _epoch, 30));
+            GeneratePINAtInterval(accountSecretKey, GetCurrentCounter(now, _epoch));
 
         /// <summary>
         /// Get all the PINs that would be valid within the time window allowed for by the default clock drift.
@@ -320,8 +336,8 @@ namespace Google.Authenticator
         {
             var iterationOffset = 0;
 
-            if (timeTolerance.TotalSeconds >= 30)
-                iterationOffset = Convert.ToInt32(timeTolerance.TotalSeconds / 30.00);
+            if (timeTolerance.TotalSeconds >= timeStep)  
+                iterationOffset = Convert.ToInt32(timeTolerance.TotalSeconds / timeStep);
 
             return GetCurrentPINs(accountSecretKey, iterationOffset);
         }
