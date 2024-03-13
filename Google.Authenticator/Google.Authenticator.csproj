@@ -6,8 +6,8 @@
     <Description>Google Authenticator Two-Factor Authentication Library (Not officially affiliated with Google.)</Description>
     <Authors>Brandon Potter</Authors>
     <Company>Brandon Potter</Company>
-    <Version>3.2.0</Version>
-    <PackageReleaseNotes>Added support for HMACSHA256 and HMACSHA512 as per the RFC spec. Care should be taken by the developer to ensure compatible apps are used.</PackageReleaseNotes>
+    <Version>3.3.0-beta1</Version>
+    <PackageReleaseNotes>Added the ability to use a different Time Step than the default 30 seconds</PackageReleaseNotes>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/BrandonPotter/GoogleAuthenticator</PackageProjectUrl>
     <PackageId>GoogleAuthenticator</PackageId>
