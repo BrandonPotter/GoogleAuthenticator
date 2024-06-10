@@ -24,7 +24,7 @@
     </PackageReference>
     <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="13.9.0" />
     <PackageReference Include="ZXing.Net" Version="0.16.9" />
-    <PackageReference Include="ZXing.Net.Bindings.Magick" Version="0.16.13" />
+    <PackageReference Include="ZXing.Net.Bindings.Magick" Version="0.16.14" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Google.Authenticator\Google.Authenticator.csproj" />
