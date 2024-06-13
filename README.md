@@ -12,23 +12,29 @@ Simple, easy to use server-side two-factor authentication library for .NET that 
 
 `key` should be stored by your application for future authentication and shouldn't be regenerated for each request. The process of storing the private key is outside the scope of this library and is the responsibility of the application.
 
+**Setup**
 ```csharp
 using Google.Authenticator;
 
-string key;
+string key = "mySecret";
 
 TwoFactorAuthenticator tfa = new TwoFactorAuthenticator();
 SetupCode setupInfo = tfa.GenerateSetupCode("Test Two Factor", "user@example.com", key, false, 3);
 
 string qrCodeImageUrl = setupInfo.QrCodeSetupImageUrl;
 string manualEntrySetupCode = setupInfo.ManualEntryKey;
+```
 
-imgQrCode.ImageUrl = qrCodeImageUrl;
-lblManualSetupCode.Text = manualEntrySetupCode;
+**Verify**
+```csharp
+using Google.Authenticator;
+
+string key = "mySecret";
+string authenticatorCode = "123456"
 
 // verify
 TwoFactorAuthenticator tfa = new TwoFactorAuthenticator();
-bool result = tfa.ValidateTwoFactorPIN(key, txtCode.Text)
+bool result = tfa.ValidateTwoFactorPIN(key, authenticatorCode);
 ```
 
 ## Update history
