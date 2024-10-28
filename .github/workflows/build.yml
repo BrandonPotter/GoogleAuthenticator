@@ -25,9 +25,9 @@ jobs:
       - name: Restore Google.Authenticator.Tests
         run: dotnet restore ./Google.Authenticator.Tests/Google.Authenticator.Tests.csproj
       - name: Build Package
-        run: dotnet build ./Google.Authenticator/Google.Authenticator.csproj --configuration $(buildConfiguration) --no-restore
+        run: dotnet build ./Google.Authenticator/Google.Authenticator.csproj --configuration Release --no-restore
       - name: Build Tests
-        run: dotnet build ./Google.Authenticator.Tests/Google.Authenticator.Tests.csproj --configuration $(buildConfiguration) --no-restore --no-dependencies
+        run: dotnet build ./Google.Authenticator.Tests/Google.Authenticator.Tests.csproj --configuration Release --no-restore --no-dependencies
       - name: Test
         run: dotnet test ./Google.Authenticator.Tests/Google.Authenticator.Tests.csproj --no-build --verbosity normal --configuration Release
       - name: Pack
