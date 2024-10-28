@@ -22,6 +22,11 @@ jobs:
   
   steps:
 
+  - task: UseDotNet@2
+    displauName: Install .NET 6
+    inputs:
+      version: 6.0.x
+  
   # There is a legacy project in the solution that dotnet won't build, so restoring and building individual projects
   - script: dotnet restore ./Google.Authenticator/Google.Authenticator.csproj 
     displayName: dotnet restore package
