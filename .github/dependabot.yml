@@ -6,7 +6,12 @@
 version: 2
 updates:
   - package-ecosystem: "nuget"
-    directory: "/Google.Authenticator"
-    directory: "/Google.Authenticator.Tests"
+    directories:
+      - "/Google.Authenticator"
+      - "/Google.Authenticator.Tests"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
       interval: "weekly"
