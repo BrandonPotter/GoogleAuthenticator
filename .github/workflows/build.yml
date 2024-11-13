@@ -31,7 +31,7 @@ jobs:
       - name: Test
         run: dotnet test ./Google.Authenticator.Tests/Google.Authenticator.Tests.csproj --no-build --verbosity normal --configuration Release
       - name: Pack
-        if: ${{ github.ref == 'refs/heads/master' && github.event_name != 'pull_request' }}
+        if: ${{ runner.os == 'Windows' && github.ref == 'refs/heads/master' && github.event_name != 'pull_request' }}
         run: |
           dotnet pack ./Google.Authenticator/Google.Authenticator.csproj --configuration $(buildConfiguration) --no-build
-          dotnet nuget push **\*.nupkg --source 'https://api.nuget.org/v3/index.json' --skip-duplicate -k ${{ secrets.NUGET_API_KEY }}
+          dotnet nuget push **\*.nupkg --source 'https://api.nuget.org/v3/index.json' --skip-duplicate -k ${{ secrets.NUGET_KEY }}
