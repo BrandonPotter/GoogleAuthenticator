@@ -20,6 +20,10 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 6.0.x
+      - name: Setup .NET 7.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 7.0.x
       - name: Restore Google.Authenticator
         run: dotnet restore ./Google.Authenticator/Google.Authenticator.csproj
       - name: Restore Google.Authenticator.Tests
