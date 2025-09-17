@@ -1,0 +1,41 @@
+name: build
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "master"
+jobs:
+  build_matrix:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup .NET 6.0
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 6.0.x
+      - name: Setup .NET 7.0
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 7.0.x
+      - name: Restore Google.Authenticator
+        run: dotnet restore ./Google.Authenticator/Google.Authenticator.csproj
+      - name: Restore Google.Authenticator.Tests
+        run: dotnet restore ./Google.Authenticator.Tests/Google.Authenticator.Tests.csproj
+      - name: Build Package
+        run: dotnet build ./Google.Authenticator/Google.Authenticator.csproj --configuration Release --no-restore
+      - name: Build Tests
+        run: dotnet build ./Google.Authenticator.Tests/Google.Authenticator.Tests.csproj --configuration Release --no-restore --no-dependencies
+      - name: Test
+        run: dotnet test ./Google.Authenticator.Tests/Google.Authenticator.Tests.csproj --no-build --verbosity normal --configuration Release
+      - name: Pack
+        if: ${{ runner.os == 'Windows' && github.ref == 'refs/heads/master' && github.event_name != 'pull_request' }}
+        run: |
+          dotnet pack ./Google.Authenticator/Google.Authenticator.csproj --configuration $(buildConfiguration) --no-build
+          dotnet nuget push **\*.nupkg --source 'https://api.nuget.org/v3/index.json' --skip-duplicate -k ${{ secrets.NUGET_KEY }}
