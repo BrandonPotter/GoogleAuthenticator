@@ -98,7 +98,8 @@ namespace Google.Authenticator
             return new SetupCode(
                 accountTitleNoSpaces,
                 encodedSecretKey.Trim('='),
-                generateQrCode ? GenerateQrCodeUrl(qrPixelsPerModule, provisionUrl) : "");
+                generateQrCode ? GenerateQrCodeUrl(qrPixelsPerModule, provisionUrl) : "",
+                provisionUrl);
         }
 
         private static string GenerateQrCodeUrl(int qrPixelsPerModule, string provisionUrl)

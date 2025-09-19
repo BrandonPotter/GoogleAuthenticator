@@ -9,13 +9,19 @@
         /// </summary>
         public string QrCodeSetupImageUrl { get; internal set; }
 
+        /// <summary>
+        /// The Raw otp:// url
+        /// </summary>
+        public string SetupUrl { get; internal set; }
+
         public SetupCode() { }
 
-        public SetupCode(string account, string manualEntryKey, string qrCodeSetupImageUrl)
+        public SetupCode(string account, string manualEntryKey, string qrCodeSetupImageUrl, string setupUrl)
         {
             Account = account;
             ManualEntryKey = manualEntryKey;
             QrCodeSetupImageUrl = qrCodeSetupImageUrl;
+            SetupUrl = setupUrl;
         }
     }
 }
