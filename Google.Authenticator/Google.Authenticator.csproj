@@ -6,7 +6,7 @@
     <Description>Google Authenticator Two-Factor Authentication Library (Not officially affiliated with Google.)</Description>
     <Authors>Brandon Potter</Authors>
     <Company>Brandon Potter</Company>
-    <Version>3.3.0-beta1</Version>
+    <Version>3.4.0</Version>
     <PackageReleaseNotes>Added the ability to use a different Time Step than the default 30 seconds</PackageReleaseNotes>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/BrandonPotter/GoogleAuthenticator</PackageProjectUrl>
