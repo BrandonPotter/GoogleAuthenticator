@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Google.Authenticator.Tests
 {
-    public class QRCodeTest
+    public class QRCodeAndSetupUrlTests
     {
         [Theory]
         [InlineData("issuer", "otpauth://totp/issuer:a%40b.com?secret=ONSWG4TFOQ&issuer=issuer")]
@@ -25,8 +25,13 @@ namespace Google.Authenticator.Tests
                 2);
 
             var actualUrl = ExtractUrlFromQRImage(setupCodeInfo.QrCodeSetupImageUrl);
+            var rawUrl = setupCodeInfo.SetupUrl;
 
-            actualUrl.ShouldBe(expectedUrl);
+            Assert.Multiple(() =>
+            {
+                actualUrl.ShouldBe(expectedUrl, "QR Code Url is not as expected");
+                rawUrl.ShouldBe(expectedUrl, "SetupUrl is not as expected");
+            });
         }
 
         [Theory]
@@ -44,8 +49,13 @@ namespace Google.Authenticator.Tests
                 2);
 
             var actualUrl = ExtractUrlFromQRImage(setupCodeInfo.QrCodeSetupImageUrl);
+            var rawUrl = setupCodeInfo.SetupUrl;
 
-            actualUrl.ShouldBe(expectedUrl);
+            Assert.Multiple(() =>
+            {
+                actualUrl.ShouldBe(expectedUrl, "QR Code Url is not as expected");
+                rawUrl.ShouldBe(expectedUrl, "SetupUrl is not as expected");
+            });
         }
 
         [Theory]
@@ -63,8 +73,13 @@ namespace Google.Authenticator.Tests
                 2);
 
             var actualUrl = ExtractUrlFromQRImage(setupCodeInfo.QrCodeSetupImageUrl);
+            var rawUrl = setupCodeInfo.SetupUrl;
 
-            actualUrl.ShouldBe(expectedUrl);
+            Assert.Multiple(() =>
+            {
+                actualUrl.ShouldBe(expectedUrl, "QR Code Url is not as expected");
+                rawUrl.ShouldBe(expectedUrl, "SetupUrl is not as expected");
+            });
         }
 
         private static string ExtractUrlFromQRImage(string qrCodeSetupImageUrl)
