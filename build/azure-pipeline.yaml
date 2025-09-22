@@ -35,6 +35,13 @@ jobs:
   - script: dotnet build ./Google.Authenticator.Tests/Google.Authenticator.Tests.csproj --configuration $(buildConfiguration) --no-restore --no-dependencies
     displayName: build tests
 
+  - task: UseDotNet@2
+    displayName: Use .NET Core SDK
+    inputs:
+      packageType: sdk
+      version: 6.x
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+
   - task: DotNetCoreCLI@2
     displayName: test
     inputs:
